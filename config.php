@@ -64,6 +64,12 @@ foreach ($colorList as $color)
 	$colors[$color] = $color;
 }
 
+$fontSizes = array();
+for ($i = 10; $i <= 64; $i += 2)
+{
+	$fontSizes["$i"] = "$i";
+}
+
 function colorSelect($id)
 {
 	global $colors;
@@ -78,7 +84,10 @@ function colorSelect($id)
 }
 
 ?>
-Button Page Title: <? PrintSettingText("buttonTitle", 0, 0, 80, 60, "fpp-BigButtons"); ?><br>
+<table border=0>
+<tr><td>Button Page Title:</td><td><? PrintSettingText("buttonTitle", 0, 0, 80, 60, "fpp-BigButtons"); ?></td></tr>
+<tr><td>Text Font Size:</td><td><? PrintSettingSelect("Font Size", "buttonFontSize", 0, 0, '', $fontSizes, "fpp-BigButtons"); ?></td></tr>
+</table>
 <script>
 		$('#buttonTitle').on('change keydown paste input', function()
 			{

@@ -25,7 +25,7 @@ function buttonClicked(cell, x)
 	$(cell).animate({'opacity':'1.0'}, 100);
 }
 </script>
-<center><b><font size='+2'><?
+<center><b><font size='<?=$pluginSettings['buttonFontSize'];?>px'><?
 if (isset($pluginSettings['buttonTitle']) && ($pluginSettings['buttonTitle'] != ''))
 	echo $pluginSettings['buttonTitle'];
 else
@@ -44,8 +44,9 @@ for ($x = 1; isset($pluginSettings[sprintf("button%02ddesc", $x)]); $x++)
 	if (($x > 1) && (($x % 2) == 1))
 		echo "</tr><tr>\n";
 
-	printf( "<td width='50%%' bgcolor='%s' align='center' onClick='buttonClicked(this, \"%02d\");'><b><font size=+1>%s</font></b></td>\n",
+	printf( "<td width='50%%' bgcolor='%s' align='center' onClick='buttonClicked(this, \"%02d\");'><b><font size='%spx'>%s</font></b></td>\n",
 		$pluginSettings[sprintf("button%02dcolor", $x)], $x,
+		$pluginSettings["buttonFontSize"],
 		$pluginSettings[sprintf("button%02ddesc", $x)]);
 }
 
