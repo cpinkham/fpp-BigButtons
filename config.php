@@ -55,6 +55,7 @@ array_push($colorList, "purple");
 array_push($colorList, "red");
 array_push($colorList, "slategrey");
 array_push($colorList, "tan");
+array_push($colorList, "white");
 array_push($colorList, "yellow");
 
 $colors = array();
