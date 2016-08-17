@@ -106,7 +106,7 @@ function colorSelect($id)
 <table border=1>
 <?
 
-for ($x = 1; $x <= 10; $x++)
+for ($x = 1; $x <= 20; $x++)
 {
 	$id = sprintf( '%02d', $x);
 ?>
