@@ -3,6 +3,13 @@
 <legend>Big Buttons Config</legend>
 
 <script>
+$(document).ready(function(){
+	$("#buttonTotal").on("change", function (event){
+		
+		location.reload(true);
+		});
+});
+
 function colorChanged(id)
 {
 	var selectID = "button" + id + "color";
@@ -55,7 +62,6 @@ array_push($colorList, "purple");
 array_push($colorList, "red");
 array_push($colorList, "slategrey");
 array_push($colorList, "tan");
-array_push($colorList, "white");
 array_push($colorList, "yellow");
 
 $colors = array();
@@ -69,6 +75,12 @@ $fontSizes = array();
 for ($i = 10; $i <= 64; $i += 2)
 {
 	$fontSizes["$i"] = "$i";
+}
+
+$totalButtons = array();
+for ($i = 1; $i <= 64; $i += 1)
+{
+	$totalButtons["$i"] = "$i";
 }
 
 function colorSelect($id)
@@ -88,6 +100,8 @@ function colorSelect($id)
 <table border=0>
 <tr><td>Button Page Title:</td><td><? PrintSettingText("buttonTitle", 0, 0, 80, 60, "fpp-BigButtons"); ?></td></tr>
 <tr><td>Text Font Size:</td><td><? PrintSettingSelect("Font Size", "buttonFontSize", 0, 0, '', $fontSizes, "fpp-BigButtons"); ?></td></tr>
+<tr><td>Total Buttons:</td><td><? PrintSettingSelect("Button Total", "buttonTotal", 0, 0, '', $totalButtons, "fpp-BigButtons"); ?></td></tr>
+
 </table>
 <script>
 		$('#buttonTitle').on('change keydown paste input', function()
@@ -106,11 +120,12 @@ function colorSelect($id)
 <table border=1>
 <?
 
-for ($x = 1; $x <= 20; $x++)
+for ($x = 1; $x <= $pluginSettings["buttonTotal"]; $x++)
 {
 	$id = sprintf( '%02d', $x);
+	$color = $pluginSettings[sprintf("button%02dcolor", $x)];
 ?>
-<tr><td id='row<?=$id; ?>'>Button #<?=$id; ?></td>
+<tr><td id='row<?=$id; ?>'><center>Button <br / >#<?=$id; ?></center></td>
 	<td><table border=0>
 	<tr><td>Description:</td>
 <!--		<td><input type='text' maxlength=60 size=60 id='button<?=$id; ?>' value='the desc'></td></tr> -->
@@ -118,7 +133,10 @@ for ($x = 1; $x <= 20; $x++)
 	<tr><td>Script:</td>
 		<td><? PrintSettingSelect("Script", "button" . $id . "script", 0, 0, '', $scripts, "fpp-BigButtons"); ?></td></tr>
 	<tr><td>Color:</td>
-		<td><? PrintSettingSelect("Color", "button" . $id . "color", 0, 0, '', $colors, "fpp-BigButtons"); ?></td></tr>
+		<td bgcolor='<?php echo $color; ?>';><? PrintSettingSelect("Color", "button" . $id . "color", 0, 0, '', $colors, "fpp-BigButtons"); ?></td></tr>
+	<tr><td>Script Arguments:</td>
+		<td><? PrintSettingText("button" . $id . "args", 0, 0, 80, 60, "fpp-BigButtons"); ?></td></tr>
+		
 	</table>
 	</td></tr>
 	<script>
@@ -130,6 +148,18 @@ for ($x = 1; $x <= 20; $x++)
 				{
 					$.get('fppjson.php?command=setPluginSetting&plugin=fpp-BigButtons&key=' + key + '&value=' + desc);
 					pluginSettings[key] = desc;
+				}
+			});
+	</script>
+	<script>
+		$('#button<?=$id;?>args').on('change keydown paste input', function()
+			{
+				var key = 'button<?=$id;?>args';
+				var args = $('#' + key).val();
+				if (pluginSettings[key] != args)
+				{
+					$.get('fppjson.php?command=setPluginSetting&plugin=fpp-BigButtons&key=' + key + '&value=' + args);
+					pluginSettings[key] = args;
 				}
 			});
 	</script>
