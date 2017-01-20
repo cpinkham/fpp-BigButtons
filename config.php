@@ -9,25 +9,19 @@ $(document).ready(function(){
 		location.reload(true);
 		});
 });
-
 function colorChanged(id)
 {
 	var selectID = "button" + id + "color";
-
 	var color = $('#' + selectID).val();
-
 	$('#row' + id).css("background-color", color);
 }
-
 function SaveBigButtonConfig()
 {
 	var data = $('#bigButtonsForm').serialize();
-
 	$.get('');
 }
 </script>
 <?
-
 $scripts = array();
 if (file_exists($settings['scriptDirectory']))
 {
@@ -44,7 +38,6 @@ if (file_exists($settings['scriptDirectory']))
 		ksort($scripts);
 	}
 }
-
 $colorList = array();
 array_push($colorList, "aqua");
 array_push($colorList, "blue");
@@ -63,30 +56,25 @@ array_push($colorList, "red");
 array_push($colorList, "slategrey");
 array_push($colorList, "tan");
 array_push($colorList, "yellow");
-
 $colors = array();
 $colors['-- Choose a Color --'] = '';
 foreach ($colorList as $color)
 {
 	$colors[$color] = $color;
 }
-
 $fontSizes = array();
 for ($i = 10; $i <= 64; $i += 2)
 {
 	$fontSizes["$i"] = "$i";
 }
-
 $totalButtons = array();
 for ($i = 1; $i <= 64; $i += 1)
 {
 	$totalButtons["$i"] = "$i";
 }
-
 function colorSelect($id)
 {
 	global $colors;
-
 	echo "<select id='button" . $id . "color' onChange='colorChanged(\"" . $id . "\");'>\n";
 	echo "<option value=''>-- Choose a Color --</option>\n";
 	foreach ($colors as $color)
@@ -95,7 +83,6 @@ function colorSelect($id)
 	}
 	echo "</select>\n";
 }
-
 ?>
 <table border=0>
 <tr><td>Button Page Title:</td><td><? PrintSettingText("buttonTitle", 0, 0, 80, 60, "fpp-BigButtons"); ?></td></tr>
@@ -119,7 +106,6 @@ function colorSelect($id)
 <form id='bigButtonsForm'>
 <table border=1>
 <?
-
 for ($x = 1; $x <= $pluginSettings["buttonTotal"]; $x++)
 {
 	$id = sprintf( '%02d', $x);
