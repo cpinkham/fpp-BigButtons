@@ -1,4 +1,4 @@
-<script type="text/javascript" src="js/jquery-1.9.1.js"></script>
+<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
 <?
 require_once("config.php");
 require_once("common.php");
@@ -31,7 +31,7 @@ if (isset($pluginSettings['buttonTitle']) && ($pluginSettings['buttonTitle'] != 
 else
 	echo $settings['HostName'] . " - Big Buttons Plugin";
 ?></b></font>
-<table border=1 width='100%' height='90%' bgcolor='#000000'>
+<table border=1 width='95%' height='90%' bgcolor='#000000' style='position: absolute'>
 <tr>
 <?
 
