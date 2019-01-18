@@ -1,3 +1,4 @@
+<head>
 <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
 <?
 require_once("config.php");
@@ -25,8 +26,26 @@ function buttonClicked(cell, x)
 	$(cell).animate({'opacity':'1.0'}, 100);
 }
 </script>
-<center><b><font size='<?=$pluginSettings['buttonFontSize'];?>px'><?
-if (isset($pluginSettings['buttonTitle']) && ($pluginSettings['buttonTitle'] != ''))
+<style>
+html, body {
+	height: 100%;
+	min-height: 100%;
+}
+
+.tableWrapper {
+	height: 100%;
+	width: 100%;
+	display: inline-block;
+}
+
+</style>
+</head>
+<body>
+<center style='height: 100%'><b><font size='<?=$pluginSettings['buttonFontSize'];?>px'>
+<?
+if (isset($_GET['title']))
+	echo $_GET['title'];
+else if (isset($pluginSettings['buttonTitle']) && ($pluginSettings['buttonTitle'] != ''))
 	echo $pluginSettings['buttonTitle'];
 else
 	echo $settings['HostName'] . " - Big Buttons Plugin";
@@ -39,12 +58,27 @@ $buttonCount = 0;
 if (isset($pluginSettings['buttonCount']))
 	$buttonCount = $pluginSettings['buttonCount'];
 
-for ($x = 1; isset($pluginSettings[sprintf("button%02ddesc", $x)]); $x++)
+$start = 1;
+$end = 9999;
+
+if (isset($_GET['start']))
+	$start = $_GET['start'];
+
+if (isset($_GET['end']))
+	$end = $_GET['end'];
+
+$i = 1;
+$width = 2;
+
+if (isset($_GET['width']))
+	$width = $_GET['width'];
+
+for ($x = $start; isset($pluginSettings[sprintf("button%02ddesc", $x)]) && ($x <= $end); $x++, $i++)
 {
-	if (($x > 1) && (($x % 2) == 1))
+	if (($i > 1) && (($i % $width) == 1))
 		echo "</tr><tr>\n";
 
-	printf( "<td width='50%%' bgcolor='%s' align='center' onClick='buttonClicked(this, \"%02d\");'><b><font size='%spx'>%s</font></b></td>\n",
+	printf( "<td width='25%%' bgcolor='%s' align='center' onClick='buttonClicked(this, \"%02d\");'><b><font size='%spx'>%s</font></b></td>\n",
 		$pluginSettings[sprintf("button%02dcolor", $x)], $x,
 		$pluginSettings["buttonFontSize"],
 		$pluginSettings[sprintf("button%02ddesc", $x)]);
@@ -56,3 +90,5 @@ if (($x % 2) == 0)
 ?>
 </tr>
 </table>
+</body>
+</html>
