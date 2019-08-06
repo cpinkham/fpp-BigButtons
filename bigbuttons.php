@@ -1,8 +1,11 @@
 <head>
-<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
 <?
 require_once("config.php");
 require_once("common.php");
+
+$jquery = glob("/opt/fpp/www/js/jquery-*.min.js");
+printf("<script type='text/javascript' src='js/%s'></script>\n", basename($jquery[0]));
+
 
 $pluginSettings = array();
 
