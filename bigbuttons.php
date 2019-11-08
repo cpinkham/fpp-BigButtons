@@ -21,7 +21,7 @@ function buttonClicked(cell, x)
     url += pluginJson["buttons"][x]["command"];
     $.each( pluginJson["buttons"][x]["args"], function(key, v) {
            url += "/";
-           url += v;
+           url += encodeURIComponent(v);
        });
 	$.get(url);
 	$(cell).animate({'opacity':'1.0'}, 100);
@@ -37,6 +37,10 @@ html, body {
 	height: 100%;
 	width: 100%;
 	display: inline-block;
+}
+
+.adjustableText {
+    width: 90%;
 }
 
 .adjustableSlider {
@@ -71,7 +75,7 @@ html, body {
 </style>
 </head>
 <body>
-<center style='height: 100%'><b><font size='<?=$pluginJson["fontSize"];?>px'>
+<center style='height: 100%'><b><font style='font-size: <?=$pluginJson["fontSize"];?>px;'>
 <?
 if (isset($_GET['title']))
 	echo $_GET['title'];
@@ -123,7 +127,7 @@ for ($x = $start; $x <= $end; $x++) {
         if ($color == "") {
             $color = "aqua";
         }
-        printf( "<td width='25%%' bgcolor='%s' align='center' onClick='buttonClicked(this, \"%d\");'><b><font size='%spx'>%s</font></b>",
+        printf( "<td width='25%%' bgcolor='%s' align='center' onClick='buttonClicked(this, \"%d\");'><b><font style='font-size: %spx;'>%s</font></b>",
                $color,
                $x,
                $buttonFontSize,
@@ -131,40 +135,59 @@ for ($x = $start; $x <= $end; $x++) {
         
         if (returnIfExists($pluginJson["buttons"][$x], "adjustable") != "") {
             $adj = array_keys($pluginJson["buttons"][$x]["adjustable"])[0];
+            $type = $pluginJson["buttons"][$x]["adjustable"][$adj];
+            if ($type == "number") {
             
-            printf("\n<script>\nfunction OnSlider%dChanged(slider) { \n", $x);
-            printf("    var command = \"%s\";\n", returnIfExists($pluginJson["buttons"][$x], "command"));
-            printf("    var arg = %d;\n", ((int)$adj - 1));
-            printf("    pluginJson['buttons'][%d]['args'][arg] = slider.value;\n", $x);
-            printf("}\n</script>\n");
-            printf("<br><input type='range' class='adjustableSlider' id='slider%d' onchange='OnSlider%dChanged(this);' min='0' max='10' value='1'></input>\n", $x, $x);
-            printf("<script>\n");
-            printf("    var command = \"%s\";\n", returnIfExists($pluginJson["buttons"][$x], "command"));
-            printf("    var arg = %d;\n", ((int)$adj - 1));
-        ?>
-            $.ajax({
-                     dataType: "json",
-                     async: false,
-                     url: "api/commands/" + command,
-                     success: function(data) {
-                        $('#slider<?=$x;?>').prop("min", data['args'][arg].min);
-                        $('#slider<?=$x;?>').prop("max", data['args'][arg].max);
-                   
-                        $.ajax({
-                               dataType: "text",
-                               async: false,
-                               url: data['args'][arg]['adjustableGetValueURL'],
-                               success: function(data) {
-                                    pluginJson['buttons'][<?=$x;?>]['args'][arg] = data;
-                                    $('#slider<?=$x;?>').prop("value", data);
-                               }
-                        });
-                     }
-                   });
-        <?
-            printf("</script>\n");
+                printf("\n<script>\nfunction OnSlider%dChanged(slider) { \n", $x);
+                printf("    var command = \"%s\";\n", returnIfExists($pluginJson["buttons"][$x], "command"));
+                printf("    var arg = %d;\n", ((int)$adj - 1));
+                printf("    pluginJson['buttons'][%d]['args'][arg] = slider.value;\n", $x);
+                printf("}\n</script>\n");
+                printf("<br><input type='range' class='adjustableSlider' id='slider%d' onchange='OnSlider%dChanged(this);' min='0' max='10' value='1'></input>\n", $x, $x);
+                printf("<script>\n");
+                printf("    var command = \"%s\";\n", returnIfExists($pluginJson["buttons"][$x], "command"));
+                printf("    var arg = %d;\n", ((int)$adj - 1));
+            ?>
+                $.ajax({
+                         dataType: "json",
+                         async: false,
+                         url: "api/commands/" + command,
+                         success: function(data) {
+                            $('#slider<?=$x;?>').prop("min", data['args'][arg].min);
+                            $('#slider<?=$x;?>').prop("max", data['args'][arg].max);
+                       
+                            $.ajax({
+                                   dataType: "text",
+                                   async: false,
+                                   url: data['args'][arg]['adjustableGetValueURL'],
+                                   success: function(data) {
+                                        pluginJson['buttons'][<?=$x;?>]['args'][arg] = data;
+                                        $('#slider<?=$x;?>').prop("value", data);
+                                   }
+                            });
+                         }
+                       });
+            <?
+                printf("</script>\n");
+
+            } else if ($type == "text") {
+                printf("<br><input type='text' class='adjustableText' id='text%d' onchange='OnText%dChanged(this);' ></input>\n", $x, $x);
+                ?>
+                <script>
+                $("#text<?=$x;?>").click(function(e){
+                    e.stopPropagation();
+                });
+                function OnText<?=$x;?>Changed(text) {
+                    var arg = <?=$adj;?> - 1;
+                    pluginJson['buttons'][<?=$x;?>]['args'][arg] = text.value;
+                    buttonClicked(text.parentElement, '<?=$x;?>');
+                }
+                </script>
+                <?
+            }
 
         }
+
         
         printf("</td>\n");
     }
