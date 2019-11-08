@@ -9,10 +9,16 @@
 	"versions": [
 		{
 			"minFPPVersion": "0",
-			"maxFPPVersion": "0",
+			"maxFPPVersion": "3.4.99",
+			"branch": "master",
+			"sha": "9ce9583300e373c7f04bd291e7de8316cf269833"
+		},
+		{
+			"minFPPVersion": "3.5",
+			"maxFPPVersion": "",
 			"branch": "master",
 			"sha": ""
-		}
+		},
 	]
 }
 
