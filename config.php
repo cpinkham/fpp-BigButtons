@@ -92,9 +92,15 @@ array_push($colorList, "white");
 array_push($colorList, "whitesmoke");
 array_push($colorList, "yellow");
 
-function PrintFontSizes() {
+function PrintFontSizes($cur2) {
+    $cur = (int)$cur2;
+    
     for ($i = 10; $i <= 64; $i += 2) {
-        echo "<option value='" . $i . "'>" . $i . "</option>";
+        echo "<option value='" . $i . "'";
+        if ($i == $cur) {
+            echo " selected";
+        }
+        echo ">" . $i . "</option>";
     }
 }
 function PrintColors($cur) {
@@ -112,7 +118,7 @@ function PrintColors($cur) {
 
 <table border=0>
 <tr><td>Button Page Title:</td><td><input type='text' id='buttonTitle' maxlength='80' size='60' value='<? echo $pluginJson["title"] ?>'></input></td></tr>
-<tr><td>Text Font Size:</td><td><select id='buttonFontSize' onChange='buttonFontSizeChanged();'><? PrintFontSizes() ?></select></td></tr>
+<tr><td>Text Font Size:</td><td><select id='buttonFontSize' onChange='buttonFontSizeChanged();'><? PrintFontSizes($pluginJson["fontSize"]) ?></select></td></tr>
 <tr><td><input type="button" value="Save" class="buttons" onclick="SaveButtons();"></td></tr>
 </table>
 <script>
