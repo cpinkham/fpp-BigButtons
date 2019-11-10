@@ -20,13 +20,14 @@ function ButtonColorChanged(id)
 
 
 var bigButtonsConfig = <? echo json_encode($pluginJson, JSON_PRETTY_PRINT); ?>;
-function SaveBigButtonConfig() {
+function SaveBigButtonConfig(config) {
+    var data = JSON.stringify(config);
     $.ajax({
         type: "POST",
         url: 'fppjson.php?command=setPluginJSON&plugin=fpp-BigButtons',
         dataType: 'json',
         async: false,
-        data: JSON.stringify(bigButtonsConfig),
+        data: data,
         processData: false,
         contentType: 'application/json',
         success: function (data) {
@@ -40,24 +41,24 @@ function buttonFontSizeChanged() {
     SaveBigButtonConfig();
 }
 
-function SaveButton(i) {
-    if (typeof bigButtonsConfig["buttons"][i] == "undefined") {
-        bigButtonsConfig["buttons"][i] = {};
-    }
-    bigButtonsConfig["buttons"][i]["description"] = $('#button_' + i + '_Title').val();
-    bigButtonsConfig["buttons"][i]["color"] = $('#button_' + i + '_color').val();
-    CommandToJSON('button_' + i + '_Command', 'tableButton' + i, bigButtonsConfig["buttons"][i]);
-    
-    if (bigButtonsConfig["buttons"][i]["description"] == ""
-        && bigButtonsConfig["buttons"][i]["command"] == "") {
-        delete bigButtonsConfig["buttons"][i];
-    }
+function GetButton(i) {
+    var button = {
+        "description": $('#button_' + i + '_Title').val(),
+        "color": $('#button_' + i + '_color').val()
+    };
+    CommandToJSON('button_' + i + '_Command', 'tableButton' + i, button);
+    return button;
 }
 function SaveButtons() {
     for (var x = 1; x <= 20; x++) {
-        SaveButton(x);
+        var key = "" + x;
+        var button = GetButton(x);
+        if (button.description != ""
+            && button.command != "") {
+            bigButtonsConfig["buttons"][key] = button;
+        }
     }
-    SaveBigButtonConfig();
+    SaveBigButtonConfig(bigButtonsConfig);
 }
 
 </script>
@@ -176,7 +177,7 @@ for ($x = 1; $x <= 20; $x++) {
 <script>
 <?
 for ($x = 1; $x <= 20; $x++) {
-    echo "PopulateExistingCommand(bigButtonsConfig['buttons'][" . $x . "], 'button_" . $x . "_Command', 'tableButton" . $x . "', true);\n";
+    echo "PopulateExistingCommand(bigButtonsConfig['buttons'][\"" . $x . "\"], 'button_" . $x . "_Command', 'tableButton" . $x . "', true);\n";
 }
 ?>
 </script>

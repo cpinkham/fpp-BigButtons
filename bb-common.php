@@ -2,6 +2,9 @@
 
 
 function returnIfExists($json, $setting) {
+    if ($json == null) {
+        return "";
+    }
     if (array_key_exists($setting, $json)) {
         return $json[$setting];
     }
@@ -45,9 +48,13 @@ function convertAndGetSettings() {
         unlink($cfgFile);
         return $json;
     }
-    $j = file_get_contents($cfgFile . ".json");
-    $json = json_decode($j, true);
-    return $json;
+    if (file_exists($cfgFile . ".json")) {
+        $j = file_get_contents($cfgFile . ".json");
+        $json = json_decode($j, true);
+        return $json;
+    }
+    $j = "{\"fontSize\": 12, \"title\": \"\", \"buttons\": {\"1\": {}}}";
+    return json_decode($j, true);
 }
 
 
