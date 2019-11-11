@@ -3,6 +3,7 @@
 require_once("config.php");
 require_once("common.php");
 require_once("bb-common.php");
+require_once("fppversion.php");
 
 $jquery = glob("/opt/fpp/www/js/jquery-*.min.js");
 printf("<script type='text/javascript' src='js/%s'></script>\n", basename($jquery[0]));
@@ -19,11 +20,31 @@ function buttonClicked(cell, x)
     
     var url = "api/command/";
     url += pluginJson["buttons"][x]["command"];
-    $.each( pluginJson["buttons"][x]["args"], function(key, v) {
+
+    <? if (getFPPVersionTriplet() != "3.5.0") { ?>
+        var data = new Array();
+        $.each( pluginJson["buttons"][x]["args"], function(key, v) {
+           data.push(v);
+        });
+        $.ajax({
+            type: "POST",
+            url: url,
+            dataType: 'json',
+            async: false,
+            data: JSON.stringify(data),
+            processData: false,
+            contentType: 'application/json',
+            success: function (data) {
+            }
+        });
+<?  } else { ?>
+        $.each( pluginJson["buttons"][x]["args"], function(key, v) {
            url += "/";
            url += encodeURIComponent(v);
-       });
-	$.get(url);
+        });
+        $.get(url);
+<? } ?>
+
 	$(cell).animate({'opacity':'1.0'}, 100);
 }
 </script>
@@ -117,9 +138,11 @@ $width = 2;
 if (isset($_GET['width']))
 	$width = $_GET['width'];
 
+$wdPct = 100 / (int)$width;
+
 for ($x = $start; $x <= $end; $x++) {
     if (array_key_exists($x, $pluginJson["buttons"])) {
-        if (($i > 1) && (($i % $width) == 1))
+        if (($i > 1) && ((($i % $width) == 1) || ($width == 1)))
             echo "</tr><tr>\n";
         $i++;
 
@@ -127,8 +150,9 @@ for ($x = $start; $x <= $end; $x++) {
         if ($color == "") {
             $color = "aqua";
         }
-        printf( "<td width='25%%' bgcolor='%s' align='center' onClick='buttonClicked(this, \"%d\");'><b><font style='font-size: %spx;'>%s</font></b>",
+        printf( "<td bgcolor='%s' width='%d%%' align='center' onClick='buttonClicked(this, \"%d\");'><b><font style='font-size: %spx;'>%s</font></b>",
                $color,
+               $wdPct,
                $x,
                $buttonFontSize,
             returnIfExists($pluginJson["buttons"][$x], "description"));
@@ -192,9 +216,6 @@ for ($x = $start; $x <= $end; $x++) {
         printf("</td>\n");
     }
 }
-
-if (($x % 2) == 0)
-	echo "<td bgcolor='black'>&nbsp;</td>\n";
 
 ?>
 </tr>
