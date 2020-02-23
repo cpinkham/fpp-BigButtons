@@ -118,7 +118,7 @@ function PrintColors($cur) {
 ?>
 
 <table border=0>
-<tr><td>Button Page Title:</td><td><input type='text' id='buttonTitle' maxlength='80' size='60' value='<? echo $pluginJson["title"] ?>'></input></td></tr>
+<tr><td>Button Page Title:</td><td><input type='text' id='buttonTitle' maxlength='80' size='50' value='<? echo $pluginJson["title"] ?>'></input></td></tr>
 <tr><td>Text Font Size:</td><td><select id='buttonFontSize' onChange='buttonFontSizeChanged();'><? PrintFontSizes($pluginJson["fontSize"]) ?></select></td></tr>
 <tr><td><input type="button" value="Save" class="buttons" onclick="SaveButtons();"></td></tr>
 </table>
@@ -154,7 +154,7 @@ for ($x = 1; $x <= 20; $x++) {
     <td id='row<?=$x;?>'>Button #<?=$x;?></td>
 	<td><table border=0 id='tableButton<?=$x; ?>'>
     
-	<tr><td>Description:</td><td><input type='text' id='button_<?=$x;?>_Title' maxlength='80' size='60' value='<?=$description;?>'></input></td></tr>
+	<tr><td>Description:</td><td><input type='text' id='button_<?=$x;?>_Title' maxlength='80' size='50' value='<?=$description;?>'></input></td></tr>
 	<tr><td>Color:</td>
         <td><select id='button_<?=$x;?>_color' onChange='ButtonColorChanged(<?=$x;?>);'><? PrintColors($color); ?></select></td></tr>
     <tr><td>Command:</td>
