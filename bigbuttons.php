@@ -110,7 +110,7 @@ else
 <?
 
 $buttonCount = 0;
-if (array_key_exists("buttons", $pluginJson)) {
+if (is_array($pluginJson) && array_key_exists("buttons", $pluginJson)) {
     for ($x = 1; $x <= 20; $x++) {
         if (array_key_exists($x, $pluginJson["buttons"])) {
             $buttonCount = $x;
