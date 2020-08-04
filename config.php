@@ -61,6 +61,8 @@ function SaveButtons() {
         if (button.description != ""
             && button.command != "") {
             bigButtonsConfig["buttons"][key] = button;
+        } else if (bigButtonsConfig["buttons"][key] != null) {
+            delete bigButtonsConfig["buttons"][key];
         }
     }
     SaveBigButtonConfig(bigButtonsConfig);
