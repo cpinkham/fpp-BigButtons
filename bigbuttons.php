@@ -14,7 +14,6 @@ printf("<script type='text/javascript' src='js/%s'></script>\n", basename($jquer
 var pluginJson;
 var fppVersionTriplet;
 
-
 function sendButtonCommand(x)
 {    
     var url = "api/command/";
@@ -66,7 +65,8 @@ $(function(){
                 $newButton.find('.bb_buttonDescription').html(button.description);
                 $newButton.css({
                     backgroundColor:button.color,
-                    fontSize:pluginJson.fontSize
+                    fontSize:pluginJson.fontSize,
+                    color:'#fff'
                 })
                 if(button["adjustable"] !== undefined ){
                     
@@ -130,8 +130,14 @@ $(function(){
 
 })
 
-
-
+var getForegroundColor = function(hexcolor) {
+    hexcolor = hexcolor.replace("#", "");
+    var r = parseInt(hexcolor.substr(0,2),16);
+    var g = parseInt(hexcolor.substr(2,2),16);
+    var b = parseInt(hexcolor.substr(4,2),16);
+    var yiq = ((r*299)+(g*587)+(b*114))/1000;
+    return (yiq >= 128) ? '000' : 'fff';
+}
 
 </script>
 <style>

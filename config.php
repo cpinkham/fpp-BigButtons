@@ -37,9 +37,12 @@ function SaveBigButtonConfig(config) {
     });
 }
 
-function buttonFontSizeChanged() {
-    bigButtonsConfig['fontSize'] = parseInt($('#buttonFontSize').val());
-}
+// function buttonFontSizeChanged() {
+//     bigButtonsConfig['fontSize'] = parseInt($('#buttonFontSize').val());
+//     $('.buttonTitle').css({
+//         fontSize:parseInt($('#buttonFontSize').val())
+//     });
+// }
 
 function GetButton(i) {
     
@@ -90,6 +93,21 @@ $newButtonRow.find('[id^="tableButton"]').each(function(){
 
 return $newButtonRow;
 }
+var getForegroundColor = function(hexcolor) {
+    hexcolor = hexcolor.replace("#", "");
+    var r = parseInt(hexcolor.substr(0,2),16);
+    var g = parseInt(hexcolor.substr(2,2),16);
+    var b = parseInt(hexcolor.substr(4,2),16);
+    var yiq = ((r*299)+(g*587)+(b*114))/1000;
+    return (yiq >= 128) ? '000' : 'fff';
+}
+
+function setRowColor($row,hex){
+    $row.css({'background-color': '#'+hex}).data('row-color','#'+hex);
+    $row.find('.buttonColor').css({'background-color': '#'+hex,'color': '#'+hex}).colpickHide().val('#'+hex);
+    $row.find('.bb_commandTableCrop').css({'background-color': '#'+hex});
+
+}
 function createButtonRow(i,v){
 
     var $newButtonRow = $($(".configRowTemplate").html());
@@ -101,7 +119,9 @@ function createButtonRow(i,v){
     $newButtonRow.find('.buttonCommand').attr('id',newButtonRowCommand).on('change',function(){
         CommandSelectChanged(newButtonRowCommand, "tableButton"+$(this).closest('.bb_configRow').data('bbKey'), true);
     })
-    $newButtonRow.find('.buttonTitle').attr('id',newButtonRowTitle);
+    $newButtonRow.find('.buttonTitle').attr('id',newButtonRowTitle).css({
+        fontSize:bigButtonsConfig.fontSize
+    });
     $newButtonRow.find('.buttonColor').attr('id',newButtonRowColor);
     $newButtonRow.find('.tableButton').attr('id',newButtonRowTable);
     $newButtonRow.find('.buttonDelete').click(function(){
@@ -110,6 +130,24 @@ function createButtonRow(i,v){
             updateButtonRow(i,v);
         });
     });
+
+    // var $newButtonModal = $newButtonRow.find('.bb_modal');
+    // $newButtonRow.find('.bb_modal').dialog({
+    //     height: 440,
+    //     width: 600,
+    //     title: "File Chooser",
+    //     modal: true,
+    //     autoOpen: false,
+    //     show: { effect: "puff",easing: "easeOutExpo", duration: 200, percent:110 },
+    //     hide: { effect: "puff", duration: 100, percent:110 }
+    // });
+    // $newButtonRow.find('.bb_launchModal').click(function(){
+    //     $newButtonModal.dialog( "open" );
+    // });
+
+
+
+
     $('#buttonList').append($newButtonRow);
     LoadCommandList('button_'+i+'_Command');
     var hex = "ff8800";
@@ -121,11 +159,22 @@ function createButtonRow(i,v){
         layout:'rgbhex',
         color:hex,
         onSubmit:function(hsb,newHex,rgb,el) {
-            $(el).css({'background-color': '#'+newHex,'color': '#'+newHex}).colpickHide().val('#'+newHex);
+            setRowColor($newButtonRow,newHex);
         }
-    })
-    .css({'background-color': '#'+hex,'color': '#'+hex}).val('#'+hex);    
-    
+    });
+    setRowColor($newButtonRow,hex);
+    $newButtonRow.hover(function(){
+        $newButtonRow.css({'background-color': '#e2e2e2', zIndex:3});
+        $newButtonRow.find('.bb_commandTableCrop').css({'background-color': '#e2e2e2'});
+        $newButtonRow.find('td').css({'color': '#000' });
+        
+    },
+    function(){
+ 
+        $newButtonRow.css({'background-color': $newButtonRow.data('row-color'), zIndex:2});
+        $newButtonRow.find('.bb_commandTableCrop').css({'background-color': $newButtonRow.data('row-color')});
+
+    });
     return $newButtonRow;
 }
 $( function() {
@@ -137,6 +186,8 @@ $( function() {
     $('#buttonTitle').on('change keydown paste input', function() {
         bigButtonsConfig['title'] = $(this).val();
     });
+
+   
     $.ajax({
         type: "GET",
         url: 'fppjson.php?command=getPluginJSON&plugin=fpp-BigButtons',
@@ -159,6 +210,9 @@ $( function() {
             $('#buttonFontSize').val(bigButtonsConfig.fontSize).on('input change',function(){
                 $('.bb_fontSizeDisplay').html($(this).val());
                 bigButtonsConfig['fontSize']=$(this).val();
+                $('.buttonTitle').css({
+                    fontSize:parseInt($('#buttonFontSize').val())
+                });
             });
             $('.bb_fontSizeDisplay').html(bigButtonsConfig.fontSize);
 
@@ -201,15 +255,30 @@ $( function() {
 
 <template class="configRowTemplate">
     <li class="ui-state-default bb_configRow">
-        <table border=0 id='tableButtonTPL' class="tableButton">
+
+        <div class="bb_buttonTitleWrap">
+            <input type='text' class="buttonTitle" placeholder="Name Your Button" id='button_TPL_Title' maxlength='80'  value='<?=$description;?>'></input>
+        </div>
+
+            <div class="buttonCommandWrap">
+            <select id='button_TPL_Command' class="buttonCommand"><option value="" disabled selected>Select a Command</option></select>
+            </div>
+
         
-        <tr><td>Description:</td><td><input type='text' class="buttonTitle" placeholder="Name Your Button" id='button_TPL_Title' maxlength='80' size='40' value='<?=$description;?>'></input></td></tr>
-        <tr><td>Color:</td>
-            <td><input id='button_TPL_color' class="buttonColor" type="button" /></td></tr>
-        <tr><td>Command:</td>
-            <td><select id='button_TPL_Command' class="buttonCommand"><option value=""></option></select></td></tr>
-        </table>
-        <button class="buttonDelete">Delete</button>
+
+        <div class="bb_commandTableWrap">
+            <div class="bb_commandTableCrop">
+            <table border=0 id='tableButtonTPL' class="tableButton">
+
+            </table>            
+            </div>
+        </div>
+
+        <div class="bb_buttonActions">
+            <input id='button_TPL_color' class="buttonColor" type="button" />
+            <button class="buttonDelete">Delete</button>
+        </div>
+        
     </li>
 </template>
 <div class="bb_pageSettings">
@@ -241,6 +310,9 @@ $( function() {
 </ul>
 
 <style type="text/css">
+*, *:before, *:after {
+  box-sizing: border-box;
+}
 #buttonList li,#buttonList{
     margin:0;
     list-style-type:none;
@@ -250,6 +322,8 @@ $( function() {
 #buttonList{
     margin-left:-1%;
     margin-right:-1%;
+    display:flex;
+    flex-wrap:wrap;
 }
 #buttonList:after {
   content: "";
@@ -261,9 +335,13 @@ $( function() {
     float:left;
     margin:1%;
     border-radius:12px;
-    padding:1em 1.7em;
     transition: 0.2s all cubic-bezier(.01,.79,.32,.99);
     position:relative;
+    border:none;
+}
+#buttonList li:hover {
+    box-shadow: 0px 8px 15px 3px rgba(0,0,0,0.15);
+    transform:translateY(-20px);
 }
 #buttonList li.bb_newButton{
     -webkit-animation: scale-up-center 0.4s cubic-bezier(.01,.79,.32,.99) both;
@@ -286,6 +364,37 @@ $( function() {
 .bb_actionButtons .buttons{
     margin-left:0.5em;
 }
+.bb_buttonTitleWrap{
+    text-align:center;
+    margin-top:0.5em;
+}
+.bb_commandTableWrap{
+    min-height:50px;
+    position:relative;
+}
+.bb_commandTableCrop{
+    min-height:50px;
+    height:50px;
+    overflow:hidden;
+    position:absolute;
+    width:100%;
+    z-index:2;
+     border-radius:12px;
+     transition: 0.2s all cubic-bezier(.01,.79,.32,.99);
+    padding-left:1.7em;
+    padding-right:1.7em;
+}
+#buttonList li:hover .bb_commandTableCrop{
+    height:auto;
+    background-color:#ECECEC;
+    box-shadow: 0px 20px 15px 3px rgba(0,0,0,0.1);
+    
+}
+#buttonList li:hover.ui-sortable-helper .bb_commandTableCrop {
+    height:50px;
+}
+
+
 #buttonTitle{
     border:0px;
     border-bottom: 1px solid #D2D2D2;
@@ -293,12 +402,31 @@ $( function() {
     padding-left:0px;
     font-size:1.8em;
     width:100%;
+    text-align:center;
+    font-weight:bold;
     margin-bottom:0.5em;
+}
+#buttonTitle:hover {
+    border-bottom: 1px solid #2E4260;
 }
 #buttonTitle:focus {
   outline-style: none;
   border-bottom: 1px solid #2E4260;
   box-shadow: 0px 1px 0px 0px #2E4260;
+}
+.buttonTitle::-webkit-input-placeholder { /* Edge */
+  color: rgba(0,0,0,0.4);
+}
+
+.buttonTitle:-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color: rgba(0,0,0,0.4);
+}
+
+.buttonTitle::placeholder {
+    color: rgba(0,0,0,0.4);
+}
+#buttonList li input.buttonTitle:placeholder-shown {
+    border-bottom: 1px solid rgba(0,0,0,0.25);
 }
 #saveBigButtonConfigButton{
     background-color:#2E4260;
@@ -338,6 +466,20 @@ $( function() {
 	font-size: 1.3em;
 	font-weight: bold;
 }
+#buttonList li input.buttonTitle{
+    text-align:center;
+    background-color:transparent;
+    border-radius:0;
+    border:0;
+    border-bottom:1px solid rgba(0,0,0,0);
+    color:#fff;
+    max-width:95%;
+    font-weight:bold;
+}
+#buttonList li:hover input.buttonTitle{
+    color:#000;
+    border-bottom:1px solid rgba(0,0,0,1);
+}
 .buttonColor {
     display:block;
     appearance:none;
@@ -345,35 +487,95 @@ $( function() {
 	height:30px;
 	border: 1px solid white;
     border-radius:50%;
+    cursor:pointer;
 }
+.buttonCommandWrap{
+    text-align:center;
+    margin-top:0.5em;
+}
+#buttonList li  .buttonCommand{
+    background-image:url(/images/redesign/chevron-down-white.svg);
+    border:1px solid rgba(255,255,255,0.4);
+    background-color:transparent;
+    color:#fff;
+}
+#buttonList li  .buttonCommand option{
+    color:#000;
+}
+#buttonList li:hover  .buttonCommand{
+    background-image:url(/images/redesign/chevron-down-grey.svg);
+    border:1px solid rgba(0,0,0,0.4);
+    background-color:#fff;
+    color:#000;
+}
+#buttonList li td{
+    color:#fff;
+    vertical-align:middle;
+}
+#buttonList li td * {
+
+    vertical-align:middle;
+}
+#buttonList li:hover td{
+    color:#000;
+}
+#buttonList li .tableButton {
+ opacity:0;
+ transition: 0.2s all cubic-bezier(.01,.79,.32,.99);  
+ max-width:100%;
+ padding-bottom:1.7em;
+}
+#buttonList li:hover .tableButton {
+    opacity:1;
+    
+}
+
+#buttonList li .tableButton select{
+    padding-right:3em;
+}
+.bb_buttonActions{
+    top:1em;
+    right:1em;
+    position:absolute;
+    display:flex;
+
+}
+
 .buttonDelete{
     display:block;
     appearance:none;
 	width:30px;
 	height:30px;
-    top:1em;
-    right:1em;
+
     border:0;
     border-radius:50%;
     background-color:#F63939;
     background-image: url("data:image/svg+xml,%3C!-- Generator: Adobe Illustrator 24.1.1, SVG Export Plug-In --%3E%3Csvg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='14px' height='18.3px' viewBox='0 0 14 18.3' style='enable-background:new 0 0 14 18.3;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23FFFFFF;%7D%0A%3C/style%3E%3Cdefs%3E%3C/defs%3E%3Cg%3E%3Cpath class='st0' d='M1,16.3c0,1.1,0.9,2,2,2h8c1.1,0,2-0.9,2-2v-12H1V16.3z M9.9,7.9c0-0.3,0.3-0.6,0.6-0.6c0.3,0,0.6,0.3,0.6,0.6 v6.5c0,0.3-0.3,0.6-0.6,0.6c-0.3,0-0.6-0.3-0.6-0.6V7.9z M6.5,7.9c0-0.3,0.3-0.6,0.6-0.6c0.3,0,0.6,0.3,0.6,0.6v6.5 c0,0.3-0.3,0.6-0.6,0.6c-0.3,0-0.6-0.3-0.6-0.6V7.9z M3.3,7.9c0-0.3,0.3-0.6,0.6-0.6s0.6,0.3,0.6,0.6v6.5c0,0.3-0.3,0.6-0.6,0.6 s-0.6-0.3-0.6-0.6V7.9z'/%3E%3Cpolygon class='st0' points='10.5,1 9.5,0 4.5,0 3.5,1 0,1 0,3 14,3 14,1 '/%3E%3C/g%3E%3C/svg%3E%0A");    background-position:center;
-    position:absolute;
+
     background-repeat:no-repeat;
     color:rgba(0,0,0,0);
-    opacity:0.0;
-    transform:scale(0.5);
-    transition: 0.2s all cubic-bezier(.01,.79,.32,.99);
-    cursor:pointer;
 
 }
-#buttonList li:hover .buttonDelete{
+#buttonList li .bb_buttonActions button{
+    opacity:0.0;
+    transition: 0.2s all cubic-bezier(.01,.79,.32,.99);  
+    transform:scale(0.5);
+    margin-left:0.3em;
 
+}
+#buttonList li:hover .bb_buttonActions button{
+
+    cursor:pointer;
     opacity:1;
     transform:scale(1);
 }
+
 .scale-up-center {
 	-webkit-animation: scale-up-center 0.4s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
 	        animation: scale-up-center 0.4s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
+}
+.colpick{
+    z-index:4;
 }
 
 @-webkit-keyframes scale-up-center {
