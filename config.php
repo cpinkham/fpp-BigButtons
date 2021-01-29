@@ -409,10 +409,14 @@ $( function() {
 #buttonTitle:hover {
     border-bottom: 1px solid #2E4260;
 }
-#buttonTitle:focus {
+#buttonTitle:focus, .buttonTitle:focus {
   outline-style: none;
-  border-bottom: 1px solid #2E4260;
-  box-shadow: 0px 1px 0px 0px #2E4260;
+  border-bottom: 1px solid #fff;
+  box-shadow: 0px 1px 0px 0px #fff;
+}
+#buttonList li:hover  .buttonTitle:focus {
+    border-bottom: 1px solid #2E4260;
+    box-shadow: 0px 1px 0px 0px #2E4260;
 }
 .buttonTitle::-webkit-input-placeholder { /* Edge */
   color: rgba(0,0,0,0.4);
