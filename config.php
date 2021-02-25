@@ -1,23 +1,13 @@
-
-
 <?
 require 'bb-common.php';
-$pluginJson = convertAndGetSettings();
 ?>
 
-
 <div id="global" class="settings">
-
 <link  rel="stylesheet" href="/jquery/colpick/css/colpick.css"/>
 <script src="/jquery/colpick/js/colpick.js"></script>
 <script>
 let bigButtonsConfig=null;
 
-
-function UpdateBigButtonConfig(config) {
-    bigButtonsConfig = config;
-    console.log(bigButtonsConfig);
-}
 function SaveBigButtonConfig(config) {
     var data = JSON.stringify(config);
     console.log(config);
@@ -30,126 +20,94 @@ function SaveBigButtonConfig(config) {
         processData: false,
         contentType: 'application/json',
         success: function (data) {
-   
            $('#saveBigButtonConfigButton').addClass('success');
            setTimeout(function(){$('#saveBigButtonConfigButton').removeClass('success')},3000);
         }
     });
 }
 
-// function buttonFontSizeChanged() {
-//     bigButtonsConfig['fontSize'] = parseInt($('#buttonFontSize').val());
-//     $('.buttonTitle').css({
-//         fontSize:parseInt($('#buttonFontSize').val())
-//     });
-// }
-
-function GetButton(i) {
+function GetButton(i,tab_i) {
     
     var button = {
-        "description": $('#button_' + i + '_Title').val(),
-        "color": $('#button_' + i + '_color').val()
+        "description": $('#button_'+tab_i+'-'+i+'_Title').val(),
+        "color": $('#button_'+tab_i+'-'+i+'_color').val()
     };
-    CommandToJSON('button_' + i + '_Command', 'tableButton' + i, button);
+    CommandToJSON('button_'+tab_i+'-'+i+'_Command', 'tableButton'+tab_i+'-'+i, button);
     return button;
 }
 function SaveButtons() {
     
 
+    $.each($('.buttonList'),function(tab_i,tab_v){
+        bigButtonsConfig[tab_i]={
+            title: $('.buttonTabs .buttonPageTitleValue').eq(tab_i).html(),
+            buttons:[],
+            fontSize: $('#buttonFontSize').val()
+        };
+        $.each($(tab_v).children(),function(i,v){
+            var key = ""+i;
+            var button = GetButton(i,tab_i);
+            bigButtonsConfig[tab_i]["buttons"][key] = button;
 
-    bigButtonsConfig["buttons"]=[];
-    
-    $.each($('#buttonList li'),function(i,v){
-        //console.log([v,$('#button_' + i + '_Title').val()]);
-        var key = ""+i;
-        var button = GetButton(i);
-        
-        bigButtonsConfig["buttons"][key] = button;
-
-    });
-    
-    
-    
+        });
+    }); 
     SaveBigButtonConfig(bigButtonsConfig);
 }
-function updateButtonRow(i,v){
 
-var $newButtonRow = $(v);
-var newButtonRowColor = 'button_'+i+'_color';
-var newButtonRowCommand = 'button_'+i+'_Command';
-var newButtonRowTitle = 'button_'+i+'_Title';
-var newButtonRowTable = 'tableButton'+i;
-$newButtonRow.data('bbKey',i);
-$newButtonRow.find('.buttonCommand').attr('id',newButtonRowCommand);
-$newButtonRow.find('.buttonTitle').attr('id',newButtonRowTitle);
-$newButtonRow.find('.buttonColor').attr('id',newButtonRowColor);
-$newButtonRow.find('[id^="tableButton"]').each(function(){
-    var oldId = $(this).prop('id')
-    var idArr = oldId.split('_');
-    idArr[0]=newButtonRowTable
-    $(this).attr('id',idArr.join('_'))
-    //console.log(idArr.join('_'));
-})
+function updateButtonRow(i,v,tab_i){
+    var $newButtonRow = $(v);
+    var newButtonRowColor = 'button_'+tab_i+'-'+i+'_color';
+    var newButtonRowCommand = 'button_'+tab_i+'-'+i+'_Command';
+    var newButtonRowTitle = 'button_'+tab_i+'-'+i+'_Title';
+    var newButtonRowTable = 'tableButton'+tab_i+'-'+i;
+    $newButtonRow.data('bbKey',i);
+    $newButtonRow.find('.buttonCommand').attr('id',newButtonRowCommand);
+    $newButtonRow.find('.buttonTitle').attr('id',newButtonRowTitle);
+    $newButtonRow.find('.buttonColor').attr('id',newButtonRowColor);
+    $newButtonRow.find('[id^="tableButton"]').each(function(){
+        var oldId = $(this).prop('id')
+        var idArr = oldId.split('_');
+        idArr[0]=newButtonRowTable
+        $(this).attr('id',idArr.join('_'))
 
-return $newButtonRow;
+    });
+    return $newButtonRow;
 }
-var getForegroundColor = function(hexcolor) {
-    hexcolor = hexcolor.replace("#", "");
-    var r = parseInt(hexcolor.substr(0,2),16);
-    var g = parseInt(hexcolor.substr(2,2),16);
-    var b = parseInt(hexcolor.substr(4,2),16);
-    var yiq = ((r*299)+(g*587)+(b*114))/1000;
-    return (yiq >= 128) ? '000' : 'fff';
-}
+
 
 function setRowColor($row,hex){
     $row.css({'background-color': '#'+hex}).data('row-color','#'+hex);
     $row.find('.buttonColor').css({'background-color': '#'+hex,'color': '#'+hex}).colpickHide().val('#'+hex);
     $row.find('.bb_commandTableCrop').css({'background-color': '#'+hex});
-
 }
-function createButtonRow(i,v){
 
+function createButtonRow(i,v,tab_i){
     var $newButtonRow = $($(".configRowTemplate").html());
-    var newButtonRowColor = 'button_'+i+'_color';
-    var newButtonRowCommand = 'button_'+i+'_Command';
-    var newButtonRowTitle = 'button_'+i+'_Title';
-    var newButtonRowTable = 'tableButton'+i;
+    var newButtonRowColor = 'button_'+tab_i+'-'+i+'_color';
+    var newButtonRowCommand = 'button_'+tab_i+'-'+i+'_Command';
+    var newButtonRowTitle = 'button_'+tab_i+'-'+i+'_Title';
+    var newButtonRowTable = 'tableButton'+tab_i+'-'+i;
     $newButtonRow.data('bbKey',i);
     $newButtonRow.find('.buttonCommand').attr('id',newButtonRowCommand).on('change',function(){
-        CommandSelectChanged(newButtonRowCommand, "tableButton"+$(this).closest('.bb_configRow').data('bbKey'), true);
+        CommandSelectChanged(newButtonRowCommand, newButtonRowTable, true);
     })
     $newButtonRow.find('.buttonTitle').attr('id',newButtonRowTitle).css({
-        fontSize:bigButtonsConfig.fontSize
+        fontSize:bigButtonsConfig[0].fontSize
     });
     $newButtonRow.find('.buttonColor').attr('id',newButtonRowColor);
     $newButtonRow.find('.tableButton').attr('id',newButtonRowTable);
     $newButtonRow.find('.buttonDelete').click(function(){
         $(this).closest('.bb_configRow').remove();
-        $.each($('#buttonList li'), function(i, v) {
-            updateButtonRow(i,v);
-        });
+        $.each($('.buttonList'), function(tab_iteration, tab_value) {
+            $.each($(this).find('li'), function(iteration, value) {
+                $(this).removeClass('bb_newButton');
+                updateButtonRow(iteration,value,tab_iteration);
+            });           
+        })
     });
 
-    // var $newButtonModal = $newButtonRow.find('.bb_modal');
-    // $newButtonRow.find('.bb_modal').dialog({
-    //     height: 440,
-    //     width: 600,
-    //     title: "File Chooser",
-    //     modal: true,
-    //     autoOpen: false,
-    //     show: { effect: "puff",easing: "easeOutExpo", duration: 200, percent:110 },
-    //     hide: { effect: "puff", duration: 100, percent:110 }
-    // });
-    // $newButtonRow.find('.bb_launchModal').click(function(){
-    //     $newButtonModal.dialog( "open" );
-    // });
-
-
-
-
-    $('#buttonList').append($newButtonRow);
-    LoadCommandList('button_'+i+'_Command');
+    $('.buttonLists').children().eq(tab_i).append($newButtonRow);
+    LoadCommandList('button_'+tab_i+'-'+i+'_Command');
     var hex = "ff8800";
     if(v){
         hex=v.color;
@@ -167,13 +125,10 @@ function createButtonRow(i,v){
         $newButtonRow.css({'background-color': '#e2e2e2', zIndex:3});
         $newButtonRow.find('.bb_commandTableCrop').css({'background-color': '#e2e2e2'});
         $newButtonRow.find('td').css({'color': '#000' });
-        
     },
     function(){
- 
         $newButtonRow.css({'background-color': $newButtonRow.data('row-color'), zIndex:2});
         $newButtonRow.find('.bb_commandTableCrop').css({'background-color': $newButtonRow.data('row-color')});
-
     });
     return $newButtonRow;
 }
@@ -184,78 +139,116 @@ $( function() {
     });
  
     $('#buttonTitle').on('change keydown paste input', function() {
-        bigButtonsConfig['title'] = $(this).val();
+        bigButtonsConfig[0]['title'] = $(this).val();
     });
 
-   
     $.ajax({
         type: "GET",
         url: 'fppjson.php?command=getPluginJSON&plugin=fpp-BigButtons',
         dataType: 'json',
         contentType: 'application/json',
         success: function (data) {
-            bigButtonsConfig = $.parseJSON(data);
-            
-            if(!bigButtonsConfig){
-                bigButtonsConfig={ "title": "", "fontSize": 12, "buttons": { "1": {}}}
+            if(typeof data==="string"){
+                bigButtonsConfig = $.parseJSON(data);
+            }else{
+                bigButtonsConfig = data;
             }
-
-            $.each(bigButtonsConfig.buttons,function(i,v){                   
-                $newButtonRow=createButtonRow(i,v);
-         
-                $newButtonRow.find('.buttonTitle').val(v.description);
-                $newButtonRow.find('.buttonColor').val(v.color);
-                PopulateExistingCommand(v, 'button_'+i+'_Command', 'tableButton'+i, true);
-            })
-            $('#buttonFontSize').val(bigButtonsConfig.fontSize).on('input change',function(){
-                $('.bb_fontSizeDisplay').html($(this).val());
-                bigButtonsConfig['fontSize']=$(this).val();
-                $('.buttonTitle').css({
-                    fontSize:parseInt($('#buttonFontSize').val())
+            
+            //onsole.log(data)
+            if(bigButtonsConfig.length<1){
+                bigButtonsConfig.push([{ "title": "", "fontSize": 12, "buttons": { "1": {}}}])
+            }
+            
+            $.each(bigButtonsConfig,function(tab_i,tab_v){
+                var tab = createTab(tab_v.title,tab_i);
+                $.each(bigButtonsConfig[tab_i].buttons,function(i,v){                   
+                    $newButtonRow=createButtonRow(i,v,tab_i);
+                    $newButtonRow.find('.buttonTitle').val(v.description);
+                    $newButtonRow.find('.buttonColor').val(v.color);
+                    PopulateExistingCommand(v, 'button_'+tab_i+'-'+i+'_Command', 'tableButton'+i, true);
+                })
+                $('#buttonFontSize').val(bigButtonsConfig[tab_i].fontSize).on('input change',function(){
+                    $('.bb_fontSizeDisplay').html($(this).val());
+                    bigButtonsConfig[tab_i]['fontSize']=$(this).val();
+                    $('.buttonTitle').css({
+                        fontSize:parseInt($('#buttonFontSize').val())
+                    });
                 });
+                $('.bb_fontSizeDisplay').html(bigButtonsConfig[tab_i].fontSize);           
             });
-            $('.bb_fontSizeDisplay').html(bigButtonsConfig.fontSize);
-
-
+            $( ".buttonList" ).disableSelection();
+            $('.buttonTabs').children().eq(0).addClass('bb-active');
+            $('.buttonLists').children().eq(0).addClass('bb-active');
         }
     });
 
-    $( "#buttonList" ).sortable({
-        update:function(){
-            var newBigButtonsConfig = Object.assign({}, bigButtonsConfig);
-            newBigButtonsConfig.buttons=[];
-            $.each($('#buttonList li'), function(i, v) {
-                $(this).removeClass('bb_newButton');
-    
-            //     newBigButtonsConfig.buttons[""+i]= bigButtonsConfig.buttons[$(v).data('bbKey')];
-            // });
-            // console.log(bigButtonsConfig)
-            // UpdateBigButtonConfig(newBigButtonsConfig);
 
-            
-            
-            // $.each($('#buttonList li'), function(i, v) {
-              updateButtonRow(i,v);
-            })
-        }
-  
-    });
-    $( "#buttonList" ).disableSelection();
 
-    $("#fppBBAddNewButton").click(function(){
-        var i=$( "#buttonList" ).children().length;
-        var $newButtonRow = $newButtonRow=createButtonRow(i);
-        $newButtonRow.addClass('bb_newButton')
+    function createTab(title,tab_i){
+        var $buttonTab = $($('.buttonTabTemplate').html());
+        $buttonTab.find('.buttonPageTitleValue').html(title);
+        $buttonTab.data('tab-id',tab_i);
+        var $newButtonList = $('<ul class="buttonList"></ul>').data('tab-id',tab_i);
+        $buttonTab.find('.buttonPageTitleValue').click(function(){
+            $buttonTab.addClass('bb-active').siblings().removeClass('bb-active');
+            $newButtonList.addClass('bb-active').siblings().removeClass('bb-active');
+        });
+        $buttonTab.find('.toggleButtonPageTitle').click(function(){
+            if($buttonTab.find('.buttonPageTitleValue').is("[contenteditable]")){
+                $buttonTab.removeClass('editable');
+                $buttonTab.find('.buttonPageTitleValue').removeAttr('contenteditable');
+            }else{
+                $buttonTab.addClass('editable');
+                $buttonTab.find('.buttonPageTitleValue').attr('contenteditable','').focus();
+            }
+        });
         
+        $newButtonList.sortable({
+            handle: ".bb_configRowHandle",
+        
+            update:function(){
+                $.each($('.buttonList'), function() {
+                    $.each($(this).children(), function(iteration, value) {
+                        $(this).removeClass('bb_newButton');
+                        updateButtonRow(iteration,value,$(this).parent().data('tab-id'));
+                    });           
+                })
+            }
+        });
+        $buttonTab.droppable({
+            tolerance:"pointer",
+            hoverClass:'droppable-hovered',
+            drop:function(event,ui){
+                dropped = true;
+                $(event.target).addClass('droppable-dropped');
+            }
+        });
+        $('.buttonTabs').append($buttonTab);
+        $('.buttonLists').append($newButtonList );
+        return {$tab:$buttonTab,$list:$newButtonList};
+    }
+    $("#bb_addNewButton").click(function(){
+        var i=$( ".bb-active.buttonList" ).children().length;
+        var tab_i = $( ".bb-active.buttonList" ).data('tab-id');
+        var $newButtonRow = createButtonRow(i,null,tab_i);
+        $newButtonRow.addClass('bb_newButton');
     });
-} );
-
+    $("#bb_addNewTab").click(function(){
+        var tab = createTab('New Tab',$( ".buttonTabs" ).children().length);     
+    });
+});
 
 </script>
-
+<template class="buttonTabTemplate">
+    <li class="buttonTab">
+        <span class="buttonPageTitleValue"></span>
+        <button class="toggleButtonPageTitle">Edit</button>    
+    </li>
+</template>
 <template class="configRowTemplate">
     <li class="ui-state-default bb_configRow">
-
+        <span class="bb_configRowHandle">::
+        </span>
         <div class="bb_buttonTitleWrap">
             <input type='text' class="buttonTitle" placeholder="Name Your Button" id='button_TPL_Title' maxlength='80'  value='<?=$description;?>'></input>
         </div>
@@ -281,13 +274,7 @@ $( function() {
         
     </li>
 </template>
-<div class="bb_pageSettings">
-    <div class="row">
-        <div class="bb_pageSettingsTitleCol"><input type='text' id='buttonTitle' placeholder="Name Your Page" maxlength='80' value='<? echo $pluginJson["title"] ?>'></input>
-        </div>
 
-    </div>
-</div>
 <div class="row">
     <div>
         <div class="labelHeading">Text Font Size </div>
@@ -297,40 +284,48 @@ $( function() {
         </div>
     </div>
     <div class="bb_actionButtons">
-        <button id="fppBBAddNewButton" class="buttons">Add a New Button</button>
+        <button id="bb_addNewTab" class="buttons">Add a New Tab</button>
+        <button id="bb_addNewButton" class="buttons">Add a New Button</button>
         <input type="button" value="Save Buttons" class="buttons" id="saveBigButtonConfigButton">
 
     </div>
 
 </div>
 
+<ul class="buttonTabs">
 
-
-<ul id="buttonList">
 </ul>
+<div class="buttonLists">
+
+</div>
+
 
 <style type="text/css">
 *, *:before, *:after {
   box-sizing: border-box;
 }
-#buttonList li,#buttonList{
+.buttonList li,.buttonList{
     margin:0;
     list-style-type:none;
     padding:0;
     box-sizing: border-box;
 }
-#buttonList{
+.buttonList{
     margin-left:-1%;
     margin-right:-1%;
-    display:flex;
+    
     flex-wrap:wrap;
+    display:none;
 }
-#buttonList:after {
+.buttonList.bb-active{
+    display:flex;
+}
+.buttonList:after {
   content: "";
   display: table;
   clear: both;
 }
-#buttonList li{
+.buttonList li{
     width:48%;
     float:left;
     margin:1%;
@@ -339,20 +334,21 @@ $( function() {
     position:relative;
     border:none;
 }
-#buttonList li:hover {
+.buttonList li:hover {
     box-shadow: 0px 8px 15px 3px rgba(0,0,0,0.15);
     transform:translateY(-20px);
 }
-#buttonList li.bb_newButton{
+.buttonList li.bb_newButton{
     -webkit-animation: scale-up-center 0.4s cubic-bezier(.01,.79,.32,.99) both;
 	        animation: scale-up-center 0.4s cubic-bezier(.01,.79,.32,.99) both;
 }
-#buttonList li.ui-sortable-helper {
+.buttonList li.ui-sortable-helper {
     transform:scale(1.05);
+    opacity:0.8;
     box-shadow: 10px 10px 30px 5px rgba(0,0,0,0.1);
     transition: 0.2s transform cubic-bezier(.01,.79,.32,.99),0.2s box-shadow cubic-bezier(.01,.79,.32,.99);
 }
-#buttonList li td{
+.buttonList li td{
     padding-top:0.2em;
     padding-bottom:0.2em;
 }
@@ -384,13 +380,13 @@ $( function() {
     padding-left:1.7em;
     padding-right:1.7em;
 }
-#buttonList li:hover .bb_commandTableCrop{
+.buttonList li:hover .bb_commandTableCrop{
     height:auto;
     background-color:#ECECEC;
     box-shadow: 0px 20px 15px 3px rgba(0,0,0,0.1);
     
 }
-#buttonList li:hover.ui-sortable-helper .bb_commandTableCrop {
+.buttonList li:hover.ui-sortable-helper .bb_commandTableCrop {
     height:50px;
 }
 
@@ -414,7 +410,7 @@ $( function() {
   border-bottom: 1px solid #fff;
   box-shadow: 0px 1px 0px 0px #fff;
 }
-#buttonList li:hover  .buttonTitle:focus {
+.buttonList li:hover  .buttonTitle:focus {
     border-bottom: 1px solid #2E4260;
     box-shadow: 0px 1px 0px 0px #2E4260;
 }
@@ -429,7 +425,7 @@ $( function() {
 .buttonTitle::placeholder {
     color: rgba(0,0,0,0.4);
 }
-#buttonList li input.buttonTitle:placeholder-shown {
+.buttonList li input.buttonTitle:placeholder-shown {
     border-bottom: 1px solid rgba(0,0,0,0.25);
 }
 #saveBigButtonConfigButton{
@@ -458,7 +454,7 @@ $( function() {
     margin-left: 1em;
 	margin-top: 0.5em;
 }
-#fppBBAddNewButton {
+#bb_addNewButton, #bb_addNewTab {
     background-position: right 20px center;
 	background-size: 10px;
     background-repeat:no-repeat;
@@ -470,7 +466,7 @@ $( function() {
 	font-size: 1.3em;
 	font-weight: bold;
 }
-#buttonList li input.buttonTitle{
+.buttonList li input.buttonTitle{
     text-align:center;
     background-color:transparent;
     border-radius:0;
@@ -480,7 +476,7 @@ $( function() {
     max-width:95%;
     font-weight:bold;
 }
-#buttonList li:hover input.buttonTitle{
+.buttonList li:hover input.buttonTitle{
     color:#000;
     border-bottom:1px solid rgba(0,0,0,1);
 }
@@ -493,48 +489,56 @@ $( function() {
     border-radius:50%;
     cursor:pointer;
 }
+.bb_configRowHandle{
+    display:block;
+    position:absolute;
+    top:12px;
+    left:12px;
+    font-size:1.5em;
+    cursor:grab;
+}
 .buttonCommandWrap{
     text-align:center;
     margin-top:0.5em;
 }
-#buttonList li  .buttonCommand{
+.buttonList li  .buttonCommand{
     background-image:url(/images/redesign/chevron-down-white.svg);
-    border:1px solid rgba(255,255,255,0.4);
+    border:1px solid rgba(255,255,255,1);
     background-color:transparent;
     color:#fff;
 }
-#buttonList li  .buttonCommand option{
+.buttonList li  .buttonCommand option{
     color:#000;
 }
-#buttonList li:hover  .buttonCommand{
+.buttonList li:hover  .buttonCommand{
     background-image:url(/images/redesign/chevron-down-grey.svg);
     border:1px solid rgba(0,0,0,0.4);
     background-color:#fff;
     color:#000;
 }
-#buttonList li td{
+.buttonList li td{
     color:#fff;
     vertical-align:middle;
 }
-#buttonList li td * {
+.buttonList li td * {
 
     vertical-align:middle;
 }
-#buttonList li:hover td{
+.buttonList li:hover td{
     color:#000;
 }
-#buttonList li .tableButton {
+.buttonList li .tableButton {
  opacity:0;
  transition: 0.2s all cubic-bezier(.01,.79,.32,.99);  
  max-width:100%;
  padding-bottom:1.7em;
 }
-#buttonList li:hover .tableButton {
+.buttonList li:hover .tableButton {
     opacity:1;
     
 }
 
-#buttonList li .tableButton select{
+.buttonList li .tableButton select{
     padding-right:3em;
 }
 .bb_buttonActions{
@@ -560,14 +564,14 @@ $( function() {
     color:rgba(0,0,0,0);
 
 }
-#buttonList li .bb_buttonActions button{
+.buttonList li .bb_buttonActions button{
     opacity:0.0;
     transition: 0.2s all cubic-bezier(.01,.79,.32,.99);  
     transform:scale(0.5);
     margin-left:0.3em;
 
 }
-#buttonList li:hover .bb_buttonActions button{
+.buttonList li:hover .bb_buttonActions button{
 
     cursor:pointer;
     opacity:1;
@@ -580,6 +584,54 @@ $( function() {
 }
 .colpick{
     z-index:4;
+}
+.buttonTabs{
+    list-style:none;
+    padding:0;
+    margin:0;
+    display:flex;
+    padding-bottom:0.5em;
+}
+.buttonTab {
+    list-style:none;
+    padding:0.5em 1em;
+    margin:0;
+    position:relative;
+    border-radius:6px;
+    border:1px solid transparent;
+    transition:0.1s cubic-bezier(0.390, 0.575, 0.565, 1.000);
+}
+.buttonTab:hover{
+    padding-right:3em;
+}
+.buttonTab.bb-active {
+    border:1px solid rgba(0,0,0,0.15);
+    background-color:rgba(0,0,0,0.1);
+}
+.buttonTab.ui-droppable-hover {
+    transform:scale(1.1);
+    border:1px solid rgba(0,0,0,0.15);
+    background-color:rgba(0,0,0,0.1);
+}
+.toggleButtonPageTitle{
+    position:absolute;
+    right:5px;
+    transform:scale(0);
+    opacity:0;
+    transition:0.1s cubic-bezier(0.390, 0.575, 0.565, 1.000);
+}
+.buttonTab:hover .toggleButtonPageTitle, .buttonTab.editable .toggleButtonPageTitle{
+    transform:scale(1);
+    opacity:1;   
+}
+.buttonTab .buttonPageTitleValue{
+    display:inline-block;
+    padding:0.5em;
+    border:1px solid transparent;
+    cursor:pointer;
+}
+.buttonTab.editable .buttonPageTitleValue{
+    cursor: text;
 }
 
 @-webkit-keyframes scale-up-center {
