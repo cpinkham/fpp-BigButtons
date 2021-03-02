@@ -44,6 +44,27 @@ function sendButtonCommand(tab_i,j)
     }
 
 }
+function lerp(x, y, a) {
+ return x * (1 - a) + y * a;
+}
+var startScaling=360;
+var endScaling=900;
+function getScale(number){
+  var at = number-startScaling;
+  return at / (endScaling-startScaling);
+}
+function getFontScale(){
+    return lerp(0.6, 1, 
+        getScale(
+            Math.max(
+                Math.min(
+                    window.innerWidth
+                ,endScaling)
+            ,startScaling)
+        )
+    );
+}
+
 function slugify(text)
 {
   return text.toString().toLowerCase()
@@ -100,7 +121,7 @@ $(function(){
                     $newButton.find('.bb_buttonDescription').html(button.description);
                     $newButton.css({
                         backgroundColor:button.color,
-                        fontSize:tab.fontSize,
+                        fontSize: tab.fontSize * getFontScale(),
                         color:'#fff'
                     })
                    
@@ -233,6 +254,9 @@ var getForegroundColor = function(hexcolor) {
         display: flex;
         margin:1%;
     }
+    .bb_buttonDescription{
+        text-align:center;
+    }
     .bb_button{
         flex:1;
         flex-direction:column;
@@ -254,7 +278,7 @@ var getForegroundColor = function(hexcolor) {
     }
     .bb-nav-item{
         appearance:none;
-        padding:1em;
+        padding:1em 0.5em;
         background-color:transparent;
         border:none;
         font-weight:bold;
