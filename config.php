@@ -309,7 +309,7 @@ $( function() {
     <li class="ui-state-default bb_configRow">
         <div class="bb_configRowHandle">
             <div class="rowGrip">
-                <svg viewBox="0 0 7.1 12.6" class="rowGripSvg"><circle cx="1.1" cy="1.1" r="1.1"/><circle cx="6" cy="1.1" r="1.1"/><circle cx="1.1" cy="6.3" r="1.1"/><circle cx="6" cy="6.3" r="1.1"/><circle cx="1.1" cy="11.5" r="1.1"/><circle cx="6" cy="11.5" r="1.1"/></svg>
+                  <i class="rowGripIcon fpp-icon-grip"></i>
             </div>
         </div>
         
