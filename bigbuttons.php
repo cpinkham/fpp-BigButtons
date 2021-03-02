@@ -14,14 +14,14 @@ printf("<script type='text/javascript' src='js/%s'></script>\n", basename($jquer
 var pluginJson;
 var fppVersionTriplet;
 
-function sendButtonCommand(x)
+function sendButtonCommand(tab_i,j)
 {    
     var url = "api/command/";
-    url += pluginJson["buttons"][x]["command"];
+    url += pluginJson[tab_i]["buttons"][j]["command"];
     
     if (fppVersionTriplet != "3.5.0") { 
         var data = new Array();
-        $.each( pluginJson["buttons"][x]["args"], function(i, v) {
+        $.each( pluginJson[tab_i]["buttons"][j]["args"], function(i, v) {
            data.push(v);
         });
         $.ajax({
@@ -36,7 +36,7 @@ function sendButtonCommand(x)
             }
         });
      } else { 
-        $.each( pluginJson["buttons"][x]["args"], function(i, v) {
+        $.each( pluginJson[tab_i]["buttons"][j]["args"], function(i, v) {
            url += "/";
            url += encodeURIComponent(v);
         });
@@ -103,11 +103,12 @@ $(function(){
                         fontSize:tab.fontSize,
                         color:'#fff'
                     })
+                   
                     if(button["adjustable"] !== undefined ){
                         
                         var adjustmentKey = Object.keys(button["adjustable"])[0]-1;
                         var adjustmentType = button["adjustable"][adjustmentKey+1];
-                        
+                        console.log(adjustmentKey)
                         if(adjustmentType==='number'){
                             var $adjustableNumber = $($('#adjustableNumberTemplate').html());
                             $newButton.append(
@@ -117,7 +118,7 @@ $(function(){
                             var command = button.command;
                             $slider.on('change',function(){
                                 tab['buttons'][j]['args'][adjustmentKey] = $(this).val();
-                                sendButtonCommand(j);
+                                sendButtonCommand(i,j);
                             })
                             
                             $.ajax({
@@ -141,7 +142,8 @@ $(function(){
                                 }
                             });  
                         }
-                        else if(adjustmentType==='text'){
+                        else if(adjustmentType=='text'){
+                            
                             var $adjustableText = $($('#adjustableTextTemplate').html());
                             $newButton.append(
                                 $adjustableText
@@ -149,14 +151,16 @@ $(function(){
                             tab['buttons'][j]['args'][adjustmentKey] = text.value;
                             var $input = $adjustableText.find('input[type=text]');
                             $input.on('input change',function(){
-                                sendButtonCommand(j);
+                                sendButtonCommand(i,j);
                             })
-                        }else{
-                            $newButton.on('click',function(){
-                                sendButtonCommand(j);
-                            })   
                         }
 
+                    }else{
+                        
+                        $newButton.on('click',function(){
+                            console.log('clicking')
+                            sendButtonCommand(i,j);
+                        })   
                     }
                     $tabPanel.append($newButton);
                 })
