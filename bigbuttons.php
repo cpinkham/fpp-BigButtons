@@ -24,7 +24,6 @@ function sendButtonCommand(x)
         $.each( pluginJson["buttons"][x]["args"], function(i, v) {
            data.push(v);
         });
-        console.log(data);
         $.ajax({
             type: "POST",
             url: url,
@@ -45,6 +44,27 @@ function sendButtonCommand(x)
     }
 
 }
+function slugify(text)
+{
+  return text.toString().toLowerCase()
+    .replace(/\s+/g, '-')           // Replace spaces with -
+    .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+    .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+    .replace(/^-+/, '')             // Trim - from start of text
+    .replace(/-+$/, '');            // Trim - from end of text
+}
+function getParameterByName(name, url = window.location.href) {
+    name = name.replace(/[\[\]]/g, '\\$&');
+    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+function SetCurrentTab(i){
+    $('.bb-nav-item[data-tab-index='+i+']').addClass('bb-active').siblings().removeClass('bb-active');
+    $('.bb-tab-panel[data-tab-index='+i+']').addClass('bb-active').siblings().removeClass('bb-active');
+}
 $(function(){
 
     fppVersionTriplet=$('body').data('fpp-version-triplet');
@@ -56,75 +76,98 @@ $(function(){
         contentType: 'application/json',
         success: function (data) {
             pluginJson = $.parseJSON(data);
-          
+     
             $(".bb_heading").html(pluginJson.title);
             $(document).prop('title', pluginJson.title);
-            $.each(pluginJson.buttons,function(i,button){
-               
-                var $newButton= $($('#buttonTemplate').html());
-                $newButton.find('.bb_buttonDescription').html(button.description);
-                $newButton.css({
-                    backgroundColor:button.color,
-                    fontSize:pluginJson.fontSize,
-                    color:'#fff'
-                })
-                if(button["adjustable"] !== undefined ){
-                    
-                    var adjustmentKey = Object.keys(button["adjustable"])[0]-1;
-                    var adjustmentType = button["adjustable"][adjustmentKey+1];
-                    
-                    if(adjustmentType==='number'){
-                        var $adjustableNumber = $($('#adjustableNumberTemplate').html());
-                        $newButton.append(
-                            $adjustableNumber
-                        )
-                        var $slider = $adjustableNumber.find('input[type=range]');
-                        var command = button.command;
-                        $slider.on('change',function(){
-                            pluginJson['buttons'][i]['args'][adjustmentKey] = $(this).val();
-                            sendButtonCommand(i);
-                        })
-                        
-                        $.ajax({
-                            dataType: "json",
-                            async: false,
-                            url: "api/commands/" + command,
-                            success: function(commandResponse) {
-                                $slider.prop("min", commandResponse['args'][adjustmentKey].min);
-                                $slider.prop("max", commandResponse['args'][adjustmentKey].max);
-                        
-                                $.ajax({
-                                    dataType: "text",
-                                    async: false,
-                                    url: commandResponse['args'][adjustmentKey]['adjustableGetValueURL'],
-                                    success: function(commandResponse) {
-                                            
-                                            pluginJson['buttons'][i]['args'][adjustmentKey] = commandResponse;
-                                            $slider.val(commandResponse);
-                                    }
-                                });
-                            }
-                        });  
+            
+            $.each(pluginJson,function(i,tab){
+               $navButton = $('<button class="bb-nav-item">'+tab.title+'</button>').attr('data-tab-index',i);
+               $tabPanel = $('<div class="bb-tab-panel"></div>').attr('data-tab-index',i);
+               $navButton.click(function(){
+                    SetCurrentTab(i);
+               })
+               $('#bb-nav').append($navButton)
+               $('#bb-tabs').append($tabPanel)
+               if(getParameterByName('tab')){
+                    if(getParameterByName('tab')==slugify(tab.title)){
+                        SetCurrentTab(i);
                     }
-                    else if(adjustmentType==='text'){
-                        var $adjustableText = $($('#adjustableTextTemplate').html());
-                        $newButton.append(
-                            $adjustableText
-                        )
-                        pluginJson['buttons'][i]['args'][adjustmentKey] = text.value;
-                        var $input = $adjustableText.find('input[type=text]');
-                        $input.on('input change',function(){
-                            sendButtonCommand(i);
-                        })
-                    }else{
-                        $newButton.on('click',function(){
-                            sendButtonCommand(i);
-                        })   
-                    }
+               }
 
-                }
-                $('#bb_buttonList').append($newButton);
-            })
+                $.each(tab.buttons,function(j,button){
+                
+                    var $newButton= $($('#buttonTemplate').html());
+                    $newButton.find('.bb_buttonDescription').html(button.description);
+                    $newButton.css({
+                        backgroundColor:button.color,
+                        fontSize:tab.fontSize,
+                        color:'#fff'
+                    })
+                    if(button["adjustable"] !== undefined ){
+                        
+                        var adjustmentKey = Object.keys(button["adjustable"])[0]-1;
+                        var adjustmentType = button["adjustable"][adjustmentKey+1];
+                        
+                        if(adjustmentType==='number'){
+                            var $adjustableNumber = $($('#adjustableNumberTemplate').html());
+                            $newButton.append(
+                                $adjustableNumber
+                            )
+                            var $slider = $adjustableNumber.find('input[type=range]');
+                            var command = button.command;
+                            $slider.on('change',function(){
+                                tab['buttons'][j]['args'][adjustmentKey] = $(this).val();
+                                sendButtonCommand(j);
+                            })
+                            
+                            $.ajax({
+                                dataType: "json",
+                                async: false,
+                                url: "api/commands/" + command,
+                                success: function(commandResponse) {
+                                    $slider.prop("min", commandResponse['args'][adjustmentKey].min);
+                                    $slider.prop("max", commandResponse['args'][adjustmentKey].max);
+                            
+                                    $.ajax({
+                                        dataType: "text",
+                                        async: false,
+                                        url: commandResponse['args'][adjustmentKey]['adjustableGetValueURL'],
+                                        success: function(commandResponse) {
+                                                
+                                                tab['buttons'][j]['args'][adjustmentKey] = commandResponse;
+                                                $slider.val(commandResponse);
+                                        }
+                                    });
+                                }
+                            });  
+                        }
+                        else if(adjustmentType==='text'){
+                            var $adjustableText = $($('#adjustableTextTemplate').html());
+                            $newButton.append(
+                                $adjustableText
+                            )
+                            tab['buttons'][j]['args'][adjustmentKey] = text.value;
+                            var $input = $adjustableText.find('input[type=text]');
+                            $input.on('input change',function(){
+                                sendButtonCommand(j);
+                            })
+                        }else{
+                            $newButton.on('click',function(){
+                                sendButtonCommand(j);
+                            })   
+                        }
+
+                    }
+                    $tabPanel.append($newButton);
+                })
+
+
+
+
+            });
+            if($('.bb-active').length<1){
+                SetCurrentTab(0);
+            }
         }
     });
 
@@ -162,8 +205,12 @@ var getForegroundColor = function(hexcolor) {
         
     </div>
 </template>
-<h1 class="bb_heading"></h1>
-<div id="bb_buttonList">
+<div class="bb-header">
+    <div id="bb-nav">
+    
+    </div>
+</div>
+<div id="bb-tabs">
 </div>
 
 
@@ -176,10 +223,11 @@ var getForegroundColor = function(hexcolor) {
         padding:0;
         font-family:Helvetica,Arial,sans-serif;
         font-weight:bold;
+        font-size:16px;
     }
     #bb_buttonList{
         display: flex;
-margin:1%;
+        margin:1%;
     }
     .bb_button{
         flex:1;
@@ -193,13 +241,40 @@ margin:1%;
         justify-content:center;
         color:#fff;
     }
-    .bb_heading{
+    .bb-header{
         text-align:center;
         border-bottom:1px solid #d2d2d2;
-        padding:1em;
         font-size:1.2em;
         color:#393939;
         background-color:#f4f4f4;
+    }
+    .bb-nav-item{
+        appearance:none;
+        padding:1em;
+        background-color:transparent;
+        border:none;
+        font-weight:bold;
+        font-size:16px;    
+        cursor:pointer;
+        opacity:0.75;
+    }
+    .bb-nav-item:hover {
+        opacity:0.9;
+    }
+    #bb-tabs {
+        padding:8px;
+    }
+    .bb-tab-panel{
+        display:none;
+    }
+    .bb-tab-panel.bb-active{
+        display:grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+    .bb-nav-item.bb-active{
+        border-bottom:2px solid #F63939;
+        opacity:1;
     }
 </style>
 

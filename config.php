@@ -7,6 +7,34 @@ require 'bb-common.php';
 <script src="/jquery/colpick/js/colpick.js"></script>
 <script>
 let bigButtonsConfig=null;
+let legacyColorNames={"aqua":'00FFFF',
+"blue":'0000FF',
+"chocolate":'D2691E',
+"coral":'FF7F50',
+"cyan":'00FFFF',
+"darkcyan":'008B8B',
+"green":'008000',
+"grey":'808080',
+"ivory":'FFFFF0',
+"lightblue":'ADD8E6',
+"lightcoral":'F08080',
+"lightcyan":'E0FFFF',
+"lightgrey":'D3D3D3',
+"lightgreen":'90EE90',
+"lightpink":'FFB6C1',
+"lightyellow":'FFFFE0',
+"olive":'808000',
+"orange":'FFA500',
+"pink":'FFC0CB',
+"plum":'DDA0DD',
+"purple":'800080',
+"red":'FF0000',
+"slategrey":'708090',
+"tan":'D2B48C',
+"white":'FFF5EE',
+"whitesmoke":'F5F5F5',
+"yellow":'FFFF00'}
+
 
 function SaveBigButtonConfig(config) {
     var data = JSON.stringify(config);
@@ -73,8 +101,14 @@ function updateButtonRow(i,v,tab_i){
     });
     return $newButtonRow;
 }
-
-
+function updateButtonLists() {
+    $.each($('.buttonList'), function() {
+        $.each($(this).children(), function(iteration, value) {
+            $(this).removeClass('bb_newButton');
+            updateButtonRow(iteration,value,$(this).parent().data('tab-id'));
+        });           
+    })
+}
 function setRowColor($row,hex){
     $row.css({'background-color': '#'+hex}).data('row-color','#'+hex);
     $row.find('.buttonColor').css({'background-color': '#'+hex,'color': '#'+hex}).colpickHide().val('#'+hex);
@@ -145,16 +179,26 @@ $( function() {
     $.ajax({
         type: "GET",
         url: 'fppjson.php?command=getPluginJSON&plugin=fpp-BigButtons',
+        //url: 'legacyBigButtonsSampleConfig.json',
         dataType: 'json',
         contentType: 'application/json',
         success: function (data) {
+
             if(typeof data==="string"){
                 bigButtonsConfig = $.parseJSON(data);
             }else{
                 bigButtonsConfig = data;
             }
-            
-            //onsole.log(data)
+            if(!Array.isArray(bigButtonsConfig)){
+                // if the json is a flat array, it is a legacy config
+                // so we need to upgrade to support multiple tabs
+                $.each(bigButtonsConfig.buttons,function(i,v){
+             
+                    bigButtonsConfig.buttons[i].color=legacyColorNames[v.color]
+                })
+                bigButtonsConfig = [bigButtonsConfig];
+            }
+
             if(bigButtonsConfig.length<1){
                 bigButtonsConfig.push([{ "title": "", "fontSize": 12, "buttons": { "1": {}}}])
             }
@@ -165,7 +209,7 @@ $( function() {
                     $newButtonRow=createButtonRow(i,v,tab_i);
                     $newButtonRow.find('.buttonTitle').val(v.description);
                     $newButtonRow.find('.buttonColor').val(v.color);
-                    PopulateExistingCommand(v, 'button_'+tab_i+'-'+i+'_Command', 'tableButton'+i, true);
+                    PopulateExistingCommand(v, 'button_'+tab_i+'-'+i+'_Command',  'tableButton'+tab_i+'-'+i, true);
                 })
                 $('#buttonFontSize').val(bigButtonsConfig[tab_i].fontSize).on('input change',function(){
                     $('.bb_fontSizeDisplay').html($(this).val());
@@ -187,8 +231,8 @@ $( function() {
     function createTab(title,tab_i){
         var $buttonTab = $($('.buttonTabTemplate').html());
         $buttonTab.find('.buttonPageTitleValue').html(title);
-        $buttonTab.data('tab-id',tab_i);
-        var $newButtonList = $('<ul class="buttonList"></ul>').data('tab-id',tab_i);
+        $buttonTab.attr('data-tab-id',tab_i);
+        var $newButtonList = $('<ul class="buttonList"></ul>').attr('data-tab-id',tab_i);
         $buttonTab.find('.buttonPageTitleValue').click(function(){
             $buttonTab.addClass('bb-active').siblings().removeClass('bb-active');
             $newButtonList.addClass('bb-active').siblings().removeClass('bb-active');
@@ -197,9 +241,11 @@ $( function() {
             if($buttonTab.find('.buttonPageTitleValue').is("[contenteditable]")){
                 $buttonTab.removeClass('editable');
                 $buttonTab.find('.buttonPageTitleValue').removeAttr('contenteditable');
+                $buttonTab.find('.toggleButtonPageTitle').html('Edit');
             }else{
                 $buttonTab.addClass('editable');
                 $buttonTab.find('.buttonPageTitleValue').attr('contenteditable','').focus();
+                $buttonTab.find('.toggleButtonPageTitle').html('Done');
             }
         });
         
@@ -207,12 +253,7 @@ $( function() {
             handle: ".bb_configRowHandle",
         
             update:function(){
-                $.each($('.buttonList'), function() {
-                    $.each($(this).children(), function(iteration, value) {
-                        $(this).removeClass('bb_newButton');
-                        updateButtonRow(iteration,value,$(this).parent().data('tab-id'));
-                    });           
-                })
+                updateButtonLists();
             }
         });
         $buttonTab.droppable({
@@ -220,7 +261,24 @@ $( function() {
             hoverClass:'droppable-hovered',
             drop:function(event,ui){
                 dropped = true;
-                $(event.target).addClass('droppable-dropped');
+                //$(ui.draggable).css('border','1px solid red');
+                
+                var $targetButtonList=$('.buttonList[data-tab-id='+$(event.target).data('tab-id')+']');
+                var targetTabId = $(event.target).data('tab-id');
+                var sourceTabId = $(ui.draggable).parent().data('tab-id');
+                var bbKey = ui.draggable.data('bbKey');
+
+                console.log(GetButton(bbKey,sourceTabId));
+                var v = GetButton(bbKey,sourceTabId);
+                var i = $targetButtonList.length+1;
+                $newButtonRow=createButtonRow(i,v,targetTabId);
+                $newButtonRow.find('.buttonTitle').val(v.description);
+                $newButtonRow.find('.buttonColor').val(v.color);
+                PopulateExistingCommand(v, 'button_'+targetTabId+'-'+i+'_Command', 'tableButton'+targetTabId+'-'+i, true);
+                
+                ui.draggable.remove();
+                updateButtonLists();
+                //$(event.target).addClass('droppable-dropped');
             }
         });
         $('.buttonTabs').append($buttonTab);
@@ -231,7 +289,9 @@ $( function() {
         var i=$( ".bb-active.buttonList" ).children().length;
         var tab_i = $( ".bb-active.buttonList" ).data('tab-id');
         var $newButtonRow = createButtonRow(i,null,tab_i);
-        $newButtonRow.addClass('bb_newButton');
+        $newButtonRow.addClass('bb_newButton').one('animationend',function(){
+            $newButtonRow.removeClass('bb_newButton');
+        });
     });
     $("#bb_addNewTab").click(function(){
         var tab = createTab('New Tab',$( ".buttonTabs" ).children().length);     
@@ -247,8 +307,12 @@ $( function() {
 </template>
 <template class="configRowTemplate">
     <li class="ui-state-default bb_configRow">
-        <span class="bb_configRowHandle">::
-        </span>
+        <div class="bb_configRowHandle">
+            <div class="rowGrip">
+                <svg viewBox="0 0 7.1 12.6" class="rowGripSvg"><circle cx="1.1" cy="1.1" r="1.1"/><circle cx="6" cy="1.1" r="1.1"/><circle cx="1.1" cy="6.3" r="1.1"/><circle cx="6" cy="6.3" r="1.1"/><circle cx="1.1" cy="11.5" r="1.1"/><circle cx="6" cy="11.5" r="1.1"/></svg>
+            </div>
+        </div>
+        
         <div class="bb_buttonTitleWrap">
             <input type='text' class="buttonTitle" placeholder="Name Your Button" id='button_TPL_Title' maxlength='80'  value='<?=$description;?>'></input>
         </div>
@@ -601,8 +665,8 @@ $( function() {
     border:1px solid transparent;
     transition:0.1s cubic-bezier(0.390, 0.575, 0.565, 1.000);
 }
-.buttonTab:hover{
-    padding-right:3em;
+.buttonTab:hover,.buttonTab.editable{
+    padding-right:4em;
 }
 .buttonTab.bb-active {
     border:1px solid rgba(0,0,0,0.15);
