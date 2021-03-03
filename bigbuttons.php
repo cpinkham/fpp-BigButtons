@@ -261,6 +261,9 @@ var getForegroundColor = function(hexcolor) {
         display: flex;
         margin:1%;
     }
+    .bb-tab-panel{
+        padding:4px;
+    }
     .bb-buttonDescription{
         text-align:center;
     }
@@ -268,7 +271,6 @@ var getForegroundColor = function(hexcolor) {
         flex:1;
         flex-direction:column;
         cursor:pointer;
-        margin:1%;
         height:100px;
         border-radius:12px;
         display:flex;
