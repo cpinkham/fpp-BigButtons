@@ -118,7 +118,7 @@ $(function(){
                 $.each(tab.buttons,function(j,button){
                 
                     var $newButton= $($('#buttonTemplate').html());
-                    $newButton.find('.bb_buttonDescription').html(button.description);
+                    $newButton.find('.bb-buttonDescription').html(button.description);
                     $newButton.css({
                         backgroundColor:button.color,
                         fontSize: tab.fontSize * getFontScale(),
@@ -193,6 +193,9 @@ $(function(){
             if($('.bb-active').length<1){
                 SetCurrentTab(0);
             }
+            if(getParameterByName('kiosk')!="true"){
+                $('body').removeClass('is-kiosk')
+            }
         }
     });
 
@@ -212,20 +215,20 @@ var getForegroundColor = function(hexcolor) {
 
 </style>
 </head>
-<body data-fpp-version-triplet="<?=getFPPVersionTriplet();?>">
+<body class="is-kiosk" data-fpp-version-triplet="<?=getFPPVersionTriplet();?>">
 <template id="adjustableTextTemplate">
-<div class="bb_buttonTextInput">
+<div class="bb-buttonTextInput">
     <input type="text" />
 </div>
 </template>
 <template id="adjustableNumberTemplate">
-<div class="bb_buttonSlider">
+<div class="bb-buttonSlider">
     <input type="range" />
 </div>
 </template>
 <template id="buttonTemplate">
-    <div class="bb_button">
-        <div class="bb_buttonDescription">
+    <div class="bb-button">
+        <div class="bb-buttonDescription">
         </div>
         
     </div>
@@ -250,14 +253,17 @@ var getForegroundColor = function(hexcolor) {
         font-weight:bold;
         font-size:16px;
     }
-    #bb_buttonList{
+    body.is-kiosk .bb-header{
+        display:none;
+    }
+    #bb-buttonList{
         display: flex;
         margin:1%;
     }
-    .bb_buttonDescription{
+    .bb-buttonDescription{
         text-align:center;
     }
-    .bb_button{
+    .bb-button{
         flex:1;
         flex-direction:column;
         cursor:pointer;
