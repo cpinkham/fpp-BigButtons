@@ -112,9 +112,20 @@ function updateButtonLists() {
 function setRowColor($row,hex){
     $row.css({'background-color': '#'+hex}).data('row-color','#'+hex);
     $row.find('.buttonColor').css({'background-color': '#'+hex,'color': '#'+hex}).colpickHide().val('#'+hex);
-    $row.find('.bb_commandTableCrop').css({'background-color': '#'+hex});
 }
-
+function launchButtonConfigModal($buttonRow){
+    $buttonRow.find('.buttonCommandWrap').fppDialog({
+        title: 'Command for '+($buttonRow.find('.buttonTitle').val()==''?'New Button':$buttonRow.find('.buttonTitle').val()),
+        buttons:{
+            Done:{
+                click:function(){
+                    $buttonRow.find('.buttonCommandWrap').fppDialog('close');
+                },
+                class:'btn-success'
+            }
+        }
+    })
+}
 function createButtonRow(i,v,tab_i){
     var $newButtonRow = $($(".configRowTemplate").html());
     var newButtonRowColor = 'button_'+tab_i+'-'+i+'_color';
@@ -124,9 +135,15 @@ function createButtonRow(i,v,tab_i){
     $newButtonRow.data('bbKey',i);
     $newButtonRow.find('.buttonCommand').attr('id',newButtonRowCommand).on('change',function(){
         CommandSelectChanged(newButtonRowCommand, newButtonRowTable, true);
+        $newButtonRow.find('.bb_commandSummaryTitle').html($(this).val())
     })
+    
     $newButtonRow.find('.buttonTitle').attr('id',newButtonRowTitle).css({
         fontSize:bigButtonsConfig[0].fontSize
+    });
+    
+    $newButtonRow.find('.bb_commandEditButton').click(function(){
+        launchButtonConfigModal($newButtonRow);
     });
     $newButtonRow.find('.buttonColor').attr('id',newButtonRowColor);
     $newButtonRow.find('.tableButton').attr('id',newButtonRowTable);
@@ -155,15 +172,7 @@ function createButtonRow(i,v,tab_i){
         }
     });
     setRowColor($newButtonRow,hex);
-    $newButtonRow.hover(function(){
-        $newButtonRow.css({'background-color': '#e2e2e2', zIndex:3});
-        $newButtonRow.find('.bb_commandTableCrop').css({'background-color': '#e2e2e2'});
-        $newButtonRow.find('td').css({'color': '#000' });
-    },
-    function(){
-        $newButtonRow.css({'background-color': $newButtonRow.data('row-color'), zIndex:2});
-        $newButtonRow.find('.bb_commandTableCrop').css({'background-color': $newButtonRow.data('row-color')});
-    });
+
     return $newButtonRow;
 }
 $( function() {
@@ -211,9 +220,7 @@ $( function() {
                     $newButtonRow.find('.buttonColor').val(v.color);
                     PopulateExistingCommand(v, 'button_'+tab_i+'-'+i+'_Command',  'tableButton'+tab_i+'-'+i, true);
                     $newButtonRow.find('.bb_commandSummaryTitle').html($('#button_'+tab_i+'-'+i+'_Command').val());
-                    $('#button_'+tab_i+'-'+i+'_Command').on('change',function(){
-                        $(this).closest('.bb_configRow').find('.bb_commandSummaryTitle').html($('#button_'+tab_i+'-'+i+'_Command').val())
-                    })
+    
                 })
                 $('#buttonFontSize').val(bigButtonsConfig[tab_i].fontSize).on('input change',function(){
                     $('.bb_fontSizeDisplay').html($(this).val());
@@ -295,7 +302,9 @@ $( function() {
         var $newButtonRow = createButtonRow(i,null,tab_i);
         $newButtonRow.addClass('bb_newButton').one('animationend',function(){
             $newButtonRow.removeClass('bb_newButton');
+            launchButtonConfigModal($newButtonRow);
         });
+        
     });
     $("#bb_addNewTab").click(function(){
         var tab = createTab('New Tab',$( ".buttonTabs" ).children().length);     
@@ -322,20 +331,20 @@ $( function() {
         </div>
         <div class="bb_commandSummary">
             <div class="bb_commandSummaryTitle"></div>
+            <button class="bb_commandEditButton">Edit</button>
         </div>
+
         <div class="buttonCommandWrap">
             <select id='button_TPL_Command' class="buttonCommand"><option value="" disabled selected>Select a Command</option></select>
-        </div>
+            <div class="bb_commandTableWrap">
+                <div class="bb_commandTableCrop">
+                <table border=0 id='tableButtonTPL' class="tableButton">
 
-        
-
-        <div class="bb_commandTableWrap">
-            <div class="bb_commandTableCrop">
-            <table border=0 id='tableButtonTPL' class="tableButton">
-
-            </table>            
+                </table>            
+                </div>
             </div>
         </div>
+
 
         <div class="bb_buttonActions">
             <input id='button_TPL_color' class="buttonColor" type="button" />
@@ -406,7 +415,7 @@ $( function() {
 }
 .buttonList li:hover {
     box-shadow: 0px 8px 15px 3px rgba(0,0,0,0.15);
-    transform:translateY(-20px);
+  
 }
 .buttonList li.bb_newButton{
     -webkit-animation: scale-up-center 0.4s cubic-bezier(.01,.79,.32,.99) both;
@@ -438,27 +447,6 @@ $( function() {
     min-height:50px;
     position:relative;
 }
-.bb_commandTableCrop{
-    min-height:50px;
-    height:50px;
-    overflow:hidden;
-    position:absolute;
-    width:100%;
-    z-index:2;
-     border-radius:12px;
-     transition: 0.2s all cubic-bezier(.01,.79,.32,.99);
-    padding-left:1.7em;
-    padding-right:1.7em;
-}
-.buttonList li:hover .bb_commandTableCrop{
-    height:auto;
-    background-color:#ECECEC;
-    box-shadow: 0px 20px 15px 3px rgba(0,0,0,0.1);
-    
-}
-.buttonList li:hover.ui-sortable-helper .bb_commandTableCrop {
-    height:50px;
-}
 
 
 #buttonTitle{
@@ -472,31 +460,26 @@ $( function() {
     font-weight:bold;
     margin-bottom:0.5em;
 }
-#buttonTitle:hover {
-    border-bottom: 1px solid #2E4260;
+.buttonList li:hover input.buttonTitle {
+    border-bottom: 1px solid #fff;
 }
-#buttonTitle:focus, .buttonTitle:focus {
+.buttonList li input.buttonTitle:focus, .buttonTitle:focus {
   outline-style: none;
   border-bottom: 1px solid #fff;
   box-shadow: 0px 1px 0px 0px #fff;
 }
 .buttonList li:hover  .buttonTitle:focus {
-    border-bottom: 1px solid #2E4260;
-    box-shadow: 0px 1px 0px 0px #2E4260;
+    border-bottom: 1px solid #fff;
+    box-shadow: 0px 1px 0px 0px #fff;
 }
-.buttonTitle::-webkit-input-placeholder { /* Edge */
-  color: rgba(0,0,0,0.4);
+.buttonList li input.buttonTitle::-webkit-input-placeholder { 
+    color: rgba(255,255,255,0.4);
 }
-
-.buttonTitle:-ms-input-placeholder { /* Internet Explorer 10-11 */
-    color: rgba(0,0,0,0.4);
-}
-
-.buttonTitle::placeholder {
-    color: rgba(0,0,0,0.4);
+.buttonList li input.buttonTitle::placeholder {
+    color: rgba(255,255,255,0.4);
 }
 .buttonList li input.buttonTitle:placeholder-shown {
-    border-bottom: 1px solid rgba(0,0,0,0.25);
+    border-bottom: 1px solid rgba(255,255,255,1);
 }
 #saveBigButtonConfigButton{
     background-color:#2E4260;
@@ -546,10 +529,6 @@ $( function() {
     max-width:95%;
     font-weight:bold;
 }
-.buttonList li:hover input.buttonTitle{
-    color:#000;
-    border-bottom:1px solid rgba(0,0,0,1);
-}
 .buttonColor {
     display:block;
     appearance:none;
@@ -566,46 +545,37 @@ $( function() {
     left:12px;
     font-size:1.5em;
     cursor:grab;
+    color:#fff;
+}
+.bb_configRowHandle .rowGripIcon{
+    color:#fff;
+    opacity:0.7;
+}
+.bb_configRowHandle .rowGripIcon:hover{
+    opacity:1;
 }
 .buttonCommandWrap{
     text-align:center;
     margin-top:0.5em;
+    display:none;
 }
-.buttonList li  .buttonCommand{
-    background-image:url(/images/redesign/chevron-down-white.svg);
-    border:1px solid rgba(255,255,255,1);
-    background-color:transparent;
-    color:#fff;
-}
+
 .buttonList li  .buttonCommand option{
     color:#000;
 }
-.buttonList li:hover  .buttonCommand{
-    background-image:url(/images/redesign/chevron-down-grey.svg);
-    border:1px solid rgba(0,0,0,0.4);
-    background-color:#fff;
-    color:#000;
-}
+
 .buttonList li td{
-    color:#fff;
+  
     vertical-align:middle;
 }
 .buttonList li td * {
 
     vertical-align:middle;
 }
-.buttonList li:hover td{
-    color:#000;
-}
 .buttonList li .tableButton {
- opacity:0;
- transition: 0.2s all cubic-bezier(.01,.79,.32,.99);  
+ 
  max-width:100%;
  padding-bottom:1.7em;
-}
-.buttonList li:hover .tableButton {
-    opacity:1;
-    
 }
 
 .buttonList li .tableButton select{
