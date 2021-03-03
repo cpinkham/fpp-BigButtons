@@ -85,6 +85,7 @@ function getParameterByName(name, url = window.location.href) {
 function SetCurrentTab(i){
     $('.bb-nav-item[data-tab-index='+i+']').addClass('bb-active').siblings().removeClass('bb-active');
     $('.bb-tab-panel[data-tab-index='+i+']').addClass('bb-active').siblings().removeClass('bb-active');
+    document.title = $('.bb-nav-item[data-tab-index='+i+']').html();
 }
 $(function(){
 

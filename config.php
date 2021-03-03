@@ -210,6 +210,10 @@ $( function() {
                     $newButtonRow.find('.buttonTitle').val(v.description);
                     $newButtonRow.find('.buttonColor').val(v.color);
                     PopulateExistingCommand(v, 'button_'+tab_i+'-'+i+'_Command',  'tableButton'+tab_i+'-'+i, true);
+                    $newButtonRow.find('.bb_commandSummaryTitle').html($('#button_'+tab_i+'-'+i+'_Command').val());
+                    $('#button_'+tab_i+'-'+i+'_Command').on('change',function(){
+                        $(this).closest('.bb_configRow').find('.bb_commandSummaryTitle').html($('#button_'+tab_i+'-'+i+'_Command').val())
+                    })
                 })
                 $('#buttonFontSize').val(bigButtonsConfig[tab_i].fontSize).on('input change',function(){
                     $('.bb_fontSizeDisplay').html($(this).val());
@@ -316,10 +320,12 @@ $( function() {
         <div class="bb_buttonTitleWrap">
             <input type='text' class="buttonTitle" placeholder="Name Your Button" id='button_TPL_Title' maxlength='80'  value='<?=$description;?>'></input>
         </div>
-
-            <div class="buttonCommandWrap">
+        <div class="bb_commandSummary">
+            <div class="bb_commandSummaryTitle"></div>
+        </div>
+        <div class="buttonCommandWrap">
             <select id='button_TPL_Command' class="buttonCommand"><option value="" disabled selected>Select a Command</option></select>
-            </div>
+        </div>
 
         
 
