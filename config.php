@@ -200,32 +200,35 @@ function createButtonRow(i,v,tab_i){
     var heightBeforeResize;
     $newButtonRow.resizable({
       grid: [bb.pageContentWidth/48,1],
-      start:function(){
-        heightBeforeResize = $(this).height();
-        var originY = $newButtonRow.position().top;
-        $(this).removeClass (function (index, className) {
-            return (className.match (/(^|\s)bbh-\S+/g) || []).join(' ');
-        })
-        buttonsOnSameRow =[];
-        $(this).siblings().each(function(){
-            if(originY == $(this).position().top ){
-                buttonsOnSameRow.push($(this));
-                $(this).removeClass (function (index, className) {
-                    return (className.match (/(^|\s)bbh-\S+/g) || []).join(' ');
-                })
-            }
-        })
+      start:function(event,ui){
+        if(!$(event.originalEvent.target).hasClass('ui-resizable-e')){ //dont touch the height if we are resizing width
+            heightBeforeResize = $(this).height();
+            var originY = $newButtonRow.position().top;
+            $(this).removeClass (function (index, className) {
+                return (className.match (/(^|\s)bbh-\S+/g) || []).join(' ');
+            })
+            buttonsOnSameRow =[];
+            $(this).siblings().each(function(){
+                if(originY == $(this).position().top ){
+                    buttonsOnSameRow.push($(this));
+                    $(this).removeClass (function (index, className) {
+                        return (className.match (/(^|\s)bbh-\S+/g) || []).join(' ');
+                    })
+                }
+            })
+        }
+
       },
       stop: function( event, ui ) {
-          setButtonWidthRatio( $newButtonRow,1/(bb.pageContentWidth/$newButtonRow.width()));
-
+        setButtonWidthRatio( $newButtonRow,1/(bb.pageContentWidth/$newButtonRow.width()));
+        if(!$(event.originalEvent.target).hasClass('ui-resizable-e')){ //dont touch the height if we are resizing width
             $.each(buttonsOnSameRow, function(i,$sameRowButton){
-                
                 setButtonHeightValue( $sameRowButton,$newButtonRow.height()/10);
-            })
-
-          setButtonHeightValue( $newButtonRow,$newButtonRow.height()/10);
-          $newButtonRow.width('').height('');
+            });
+            setButtonHeightValue( $newButtonRow,$newButtonRow.height()/10);
+            $newButtonRow.height('');
+        }
+        $newButtonRow.width('');
       }
     });
 
@@ -437,7 +440,6 @@ $( function() {
         </div>
     </div>
     <div class="bb_actionButtons">
-        <button id="bb_addNewTab" class="buttons">Add a New Tab</button>
         <button id="bb_addNewButton" class="buttons">Add a New Button</button>
         <input type="button" value="Save Buttons" class="buttons" id="saveBigButtonConfigButton">
 
@@ -445,9 +447,15 @@ $( function() {
 
 </div>
 
-<ul class="buttonTabs">
-
-</ul>
+<div class="buttonTabWrapper">
+    <ul class="buttonTabs">
+    
+    </ul>
+    <div>
+        <button id="bb_addNewTab"><i class="fas fa-plus"></i></button>
+    </div>
+    
+</div>
 <div class="buttonLists">
 
 </div>
@@ -589,7 +597,7 @@ $( function() {
     margin-left: 1em;
 	margin-top: 0.5em;
 }
-#bb_addNewButton, #bb_addNewTab {
+#bb_addNewButton{
     background-position: right 20px center;
 	background-size: 10px;
     background-repeat:no-repeat;
@@ -711,6 +719,23 @@ $( function() {
 .colpick{
     z-index:4;
 }
+#bb_addNewTab{
+    cursor:pointer;
+    appearance:none;
+    background-color:rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+    color:#F63939;
+    border:none;
+    padding: 0.9em 1.0em;
+    margin-left:0.4em;
+
+}
+#bb_addNewTab:hover{
+    background-color:#DADADA;
+}
+.buttonTabWrapper{
+    display:flex;
+}
 .buttonTabs{
     list-style:none;
     padding:0;
@@ -720,11 +745,12 @@ $( function() {
 }
 .buttonTab {
     list-style:none;
-    padding:0.5em 1em;
-    margin:0;
+    padding:0em 0.6em;
+    margin:0 0.2em;
     position:relative;
-    border-radius:6px;
-    border:1px solid transparent;
+    font-weight:bold;
+    border-radius:10px;
+    border:1px solid #DADADA;
     display:flex;
     align-items:center;
     transition:0.1s cubic-bezier(0.390, 0.575, 0.565, 1.000);
@@ -733,8 +759,9 @@ $( function() {
 
 }
 .buttonTab.bb-active {
-    border:1px solid rgba(0,0,0,0.15);
-    background-color:rgba(0,0,0,0.1);
+    color:#fff;
+    background-color:#F63939;
+    border-color:#F63939;
 }
 .buttonTab.ui-droppable-hover {
     transform:scale(1.1);
@@ -780,6 +807,10 @@ $( function() {
     padding:0.5em;
     border:1px solid transparent;
     cursor:pointer;
+    color:#171720;
+}
+.buttonTab.bb-active .buttonPageTitleValue{
+    color:#fff;
 }
 .buttonTab.editable .buttonPageTitleValue{
     cursor: text;
