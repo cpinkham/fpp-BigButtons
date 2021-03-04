@@ -112,6 +112,12 @@ function updateButtonLists() {
         });           
     })
 }
+function setButtonCommandSummaryTitle($row,value){
+    if(!value){
+        value='Select a Command'
+    }
+    $row.find('.bb_commandSummaryTitle').html(value);
+}
 function setButtonWidthRatio($row,ratio){
     ratio=Math.min(1,ratio)
     $row.data('button-width-ratio',ratio).removeClass (function (index, className) {
@@ -125,7 +131,7 @@ function setButtonHeightValue($row,value){
 }
 function setRowColor($row,hex){
     $row.css({'background-color': '#'+hex}).data('row-color','#'+hex);
-    $row.find('.buttonColor').css({'background-color': '#'+hex,'color': '#'+hex}).colpickHide().val('#'+hex);
+    $row.find('.buttonColor').css({'background-color': '#'+hex}).colpickHide().val('#'+hex);
 }
 function launchButtonConfigModal($buttonRow){
     $buttonRow.find('.buttonCommandWrap').fppDialog({
@@ -149,14 +155,14 @@ function createButtonRow(i,v,tab_i){
     $newButtonRow.data('bbKey',i);
     $newButtonRow.find('.buttonCommand').attr('id',newButtonRowCommand).on('change',function(){
         CommandSelectChanged(newButtonRowCommand, newButtonRowTable, true);
-        $newButtonRow.find('.bb_commandSummaryTitle').html($(this).val())
+        setButtonCommandSummaryTitle($newButtonRow,$(this).val());
     })
     
     $newButtonRow.find('.buttonTitle').attr('id',newButtonRowTitle).css({
         fontSize:bigButtonsConfig[0].fontSize
     });
     
-    $newButtonRow.find('.bb_commandEditButton').click(function(){
+    $newButtonRow.find('.bb_commandSummary').click(function(){
         launchButtonConfigModal($newButtonRow);
     });
     $newButtonRow.find('.buttonColor').attr('id',newButtonRowColor);
@@ -286,7 +292,7 @@ $( function() {
                     $newButtonRow.find('.buttonTitle').val(v.description);
                     $newButtonRow.find('.buttonColor').val(v.color);
                     PopulateExistingCommand(v, 'button_'+tab_i+'-'+i+'_Command',  'tableButton'+tab_i+'-'+i, true);
-                    $newButtonRow.find('.bb_commandSummaryTitle').html($('#button_'+tab_i+'-'+i+'_Command').val());
+                    setButtonCommandSummaryTitle($newButtonRow,$('#button_'+tab_i+'-'+i+'_Command').val());
     
                 })
                 $('#buttonFontSize').val(bigButtonsConfig[tab_i].fontSize).on('input change',function(){
@@ -319,11 +325,9 @@ $( function() {
             if($buttonTab.find('.buttonPageTitleValue').is("[contenteditable]")){
                 $buttonTab.removeClass('editable');
                 $buttonTab.find('.buttonPageTitleValue').removeAttr('contenteditable');
-                $buttonTab.find('.toggleButtonPageTitle').html('Edit');
             }else{
                 $buttonTab.addClass('editable');
                 $buttonTab.find('.buttonPageTitleValue').attr('contenteditable','').focus();
-                $buttonTab.find('.toggleButtonPageTitle').html('Done');
             }
         });
 
@@ -381,7 +385,10 @@ $( function() {
 <template class="buttonTabTemplate">
     <li class="buttonTab">
         <span class="buttonPageTitleValue"></span>
-        <button class="toggleButtonPageTitle">Edit</button>    
+        <span  class="toggleButtonPageTitleWrap">
+            <button class="bb_circleButton toggleButtonPageTitle"><i class="fpp-icon-edit"></i><i class="fpp-icon-check"></i></button>   
+        </span>
+         
     </li>
 </template>
 <template class="configRowTemplate">
@@ -392,12 +399,13 @@ $( function() {
             </div>
         </div>
         
-        <div class="bb_buttonTitleWrap">
-            <input type='text' class="buttonTitle" placeholder="Name Your Button" id='button_TPL_Title' maxlength='80'  value='<?=$description;?>'></input>
-        </div>
-        <div class="bb_commandSummary">
-            <div class="bb_commandSummaryTitle"></div>
-            <button class="bb_commandEditButton">Edit</button>
+        <div class="bb_configRowBody">
+            <div class="bb_buttonTitleWrap">
+                <input type='text' class="buttonTitle" placeholder="Name Your Button" id='button_TPL_Title' maxlength='80'  value='<?=$description;?>'></input>
+            </div>
+            <div class="bb_commandSummary">
+                <i class="fas fa-fw fa-terminal fa-nbsp"></i><strong class="bb_commandSummaryTitle"></strong><button class="buttons btn-outline-light bb_commandEditButton"><i class="fas fa-cog"></i></button>
+            </div>
         </div>
 
         <div class="buttonCommandWrap">
@@ -413,8 +421,8 @@ $( function() {
 
 
         <div class="bb_buttonActions">
-            <input id='button_TPL_color' class="buttonColor" type="button" />
-            <button class="buttonDelete">Delete</button>
+            <button id='button_TPL_color' class="bb_circleButton buttonColor" type="button"><i class="fas fa-paint-brush"></i></button>
+            <button class="bb_circleButton buttonDelete">Delete</button>
         </div>
         
     </li>
@@ -506,9 +514,16 @@ $( function() {
 .bb_actionButtons .buttons{
     margin-left:0.5em;
 }
+.bb_configRowBody{
+    height:100%;
+    display:flex;
+    align-items:center;
+    width:100%;
+    justify-content:center;
+    flex-direction:column;
+}
 .bb_buttonTitleWrap{
     text-align:center;
-    margin-top:0.5em;
 }
 .bb_commandTableWrap{
     min-height:50px;
@@ -593,18 +608,11 @@ $( function() {
     border:0;
     border-bottom:1px solid rgba(0,0,0,0);
     color:#fff;
-    max-width:95%;
+    max-width:87%;
     font-weight:bold;
+    margin-bottom:0.2em;
 }
-.buttonColor {
-    display:block;
-    appearance:none;
-	width:30px;
-	height:30px;
-	border: 1px solid white;
-    border-radius:50%;
-    cursor:pointer;
-}
+
 .bb_configRowHandle{
     display:block;
     position:absolute;
@@ -620,6 +628,13 @@ $( function() {
 }
 .bb_configRowHandle .rowGripIcon:hover{
     opacity:1;
+}
+.bb_commandSummary{
+    color:#fff;
+    cursor:pointer;
+}
+.bb_commandSummary button{
+    margin-left:0.5em;
 }
 .buttonCommandWrap{
     text-align:center;
@@ -655,21 +670,25 @@ $( function() {
     display:flex;
 
 }
-
-.buttonDelete{
+.bb_circleButton{
     display:block;
     appearance:none;
 	width:30px;
 	height:30px;
-
     border:0;
     border-radius:50%;
+    color:#fff;
+    cursor:pointer;
+    font-weight:900;
+}
+.buttonColor {
+	border: 1px solid white;
+}
+.buttonDelete{
     background-color:#F63939;
     background-image: url("data:image/svg+xml,%3C!-- Generator: Adobe Illustrator 24.1.1, SVG Export Plug-In --%3E%3Csvg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='14px' height='18.3px' viewBox='0 0 14 18.3' style='enable-background:new 0 0 14 18.3;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23FFFFFF;%7D%0A%3C/style%3E%3Cdefs%3E%3C/defs%3E%3Cg%3E%3Cpath class='st0' d='M1,16.3c0,1.1,0.9,2,2,2h8c1.1,0,2-0.9,2-2v-12H1V16.3z M9.9,7.9c0-0.3,0.3-0.6,0.6-0.6c0.3,0,0.6,0.3,0.6,0.6 v6.5c0,0.3-0.3,0.6-0.6,0.6c-0.3,0-0.6-0.3-0.6-0.6V7.9z M6.5,7.9c0-0.3,0.3-0.6,0.6-0.6c0.3,0,0.6,0.3,0.6,0.6v6.5 c0,0.3-0.3,0.6-0.6,0.6c-0.3,0-0.6-0.3-0.6-0.6V7.9z M3.3,7.9c0-0.3,0.3-0.6,0.6-0.6s0.6,0.3,0.6,0.6v6.5c0,0.3-0.3,0.6-0.6,0.6 s-0.6-0.3-0.6-0.6V7.9z'/%3E%3Cpolygon class='st0' points='10.5,1 9.5,0 4.5,0 3.5,1 0,1 0,3 14,3 14,1 '/%3E%3C/g%3E%3C/svg%3E%0A");    background-position:center;
-
     background-repeat:no-repeat;
     color:rgba(0,0,0,0);
-
 }
 .buttonList li .bb_buttonActions button{
     opacity:0.0;
@@ -706,10 +725,12 @@ $( function() {
     position:relative;
     border-radius:6px;
     border:1px solid transparent;
+    display:flex;
+    align-items:center;
     transition:0.1s cubic-bezier(0.390, 0.575, 0.565, 1.000);
 }
 .buttonTab:hover,.buttonTab.editable{
-    padding-right:4em;
+
 }
 .buttonTab.bb-active {
     border:1px solid rgba(0,0,0,0.15);
@@ -720,9 +741,14 @@ $( function() {
     border:1px solid rgba(0,0,0,0.15);
     background-color:rgba(0,0,0,0.1);
 }
+.toggleButtonPageTitleWrap{
+    width:0;
+    display:block;
+    transition:0.1s cubic-bezier(0.390, 0.575, 0.565, 1.000);
+}
 .toggleButtonPageTitle{
-    position:absolute;
-    right:5px;
+    background-color:#F2BC5F;
+    box-shadow: 3px 3px 5px rgb(23 23 32 / 20%);
     transform:scale(0);
     opacity:0;
     transition:0.1s cubic-bezier(0.390, 0.575, 0.565, 1.000);
@@ -730,6 +756,24 @@ $( function() {
 .buttonTab:hover .toggleButtonPageTitle, .buttonTab.editable .toggleButtonPageTitle{
     transform:scale(1);
     opacity:1;   
+}
+.buttonTab:hover .toggleButtonPageTitleWrap{
+    width:30px;
+}
+.buttonTab.editable .toggleButtonPageTitle{ 
+    background-color:#56B760;
+}
+.toggleButtonPageTitle .fpp-icon-edit{
+    display:block;
+} 
+.toggleButtonPageTitle .fpp-icon-check{
+    display:none;
+}
+.buttonTab.editable .toggleButtonPageTitle .fpp-icon-edit{ 
+    display:none;
+}
+.buttonTab.editable .toggleButtonPageTitle .fpp-icon-check{ 
+    display:block;
 }
 .buttonTab .buttonPageTitleValue{
     display:inline-block;
