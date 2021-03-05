@@ -72,6 +72,7 @@ function SaveButtons() {
     $.each($('.buttonList'),function(tab_i,tab_v){
         bigButtonsConfig[tab_i]={
             title: $('.buttonTabs .buttonPageTitleValue').eq(tab_i).html(),
+            color: $('.buttonList[data-tab-id='+tab_i+']').data('color'),
             buttons:[],
             fontSize: $('#buttonFontSize').val()
         };
@@ -132,6 +133,12 @@ function setButtonHeightValue($row,value){
 function setRowColor($row,hex){
     $row.css({'background-color': '#'+hex}).data('row-color','#'+hex);
     $row.find('.buttonColor').css({'background-color': '#'+hex}).colpickHide().val('#'+hex);
+}
+function setTabColor($buttonList,hex){
+  $('.bb_setButtonTabColorSwatch').css({'color': '#'+hex}).val('#'+hex);
+  $('.buttonListsPanel').css({'background-color': '#'+hex});
+  $buttonList.data('color',hex);
+  $('.bb_setButtonTabColor').colpickSetColor(hex)
 }
 function launchButtonConfigModal($buttonRow){
     $buttonRow.find('.buttonCommandWrap').fppDialog({
@@ -289,7 +296,7 @@ $( function() {
             }
             
             $.each(bigButtonsConfig,function(tab_i,tab_v){
-                var tab = createTab(tab_v.title,tab_i);
+                var tab = createTab(tab_v.title,tab_i,tab_v);
                 $.each(bigButtonsConfig[tab_i].buttons,function(i,v){                   
                     $newButtonRow=createButtonRow(i,v,tab_i);
                     $newButtonRow.find('.buttonTitle').val(v.description);
@@ -310,12 +317,23 @@ $( function() {
             $( ".buttonList" ).disableSelection();
             $('.buttonTabs').children().eq(0).addClass('bb-active');
             $('.buttonLists').children().eq(0).addClass('bb-active');
+
+            setTabColor($('.buttonList.bb-active'),$('.buttonList.bb-active').data('color'));
+            $('.bb_setButtonTabColor').colpick({
+                colorScheme:'flat',
+                layout:'rgbhex',
+                color:$('.buttonList.bb-active').data('color'),
+                onSubmit:function(hsb,newHex,rgb,el) {
+                  setTabColor($('.buttonList.bb-active'),newHex);
+                  $(el).colpickHide()
+                }
+            });
         }
     });
 
 
 
-    function createTab(title,tab_i){
+    function createTab(title,tab_i,tab_v){
         var $buttonTab = $($('.buttonTabTemplate').html());
         $buttonTab.find('.buttonPageTitleValue').html(title);
         $buttonTab.attr('data-tab-id',tab_i);
@@ -323,6 +341,7 @@ $( function() {
         $buttonTab.find('.buttonPageTitleValue').click(function(){
             $buttonTab.addClass('bb-active').siblings().removeClass('bb-active');
             $newButtonList.addClass('bb-active').siblings().removeClass('bb-active');
+            setTabColor($('.buttonList.bb-active'),$newButtonList.data('color'));
         });
         $buttonTab.find('.toggleButtonPageTitle').click(function(){
             if($buttonTab.find('.buttonPageTitleValue').is("[contenteditable]")){
@@ -365,6 +384,14 @@ $( function() {
                 //$(event.target).addClass('droppable-dropped');
             }
         });
+        var tabColor = 'f5f5f5';
+        if(tab_v){
+          
+          if(tab_v.color){
+            tabColor = tab_v.color;
+          }
+        }
+        $newButtonList.data('color',tabColor);
         $('.buttonTabs').append($buttonTab);
         $('.buttonLists').append($newButtonList );
         return {$tab:$buttonTab,$list:$newButtonList};
@@ -431,40 +458,95 @@ $( function() {
     </li>
 </template>
 
-<div class="row">
-    <div>
-        <div class="labelHeading">Text Font Size </div>
-        <div class="bb_fontSizeControls">
-            <span class='bb_fontSizeDisplay'></span>
-            <div class="bb_fontSizeControlsInputCol"><input  type="range" min=10 max=64 id='buttonFontSize'></div>
+<div class="row tablePageHeader">
+    <div class="col-md">
+      <div class="buttonTabWrapper">
+        <ul class="buttonTabs">
+        
+        </ul>
+        <div>
+            <button id="bb_addNewTab"><i class="fas fa-plus"></i></button>
         </div>
+        
+      </div>
     </div>
-    <div class="bb_actionButtons">
-        <button id="bb_addNewButton" class="buttons">Add a New Button</button>
-        <input type="button" value="Save Buttons" class="buttons" id="saveBigButtonConfigButton">
+    <div class="col-md-auto ml-lg-auto">
+      <div class="bb_actionButtons ">
+          <input type="button" value="Save Buttons" class="buttons btn-success" id="saveBigButtonConfigButton">
 
+      </div>   
     </div>
+
 
 </div>
-
-<div class="buttonTabWrapper">
-    <ul class="buttonTabs">
-    
-    </ul>
-    <div>
-        <button id="bb_addNewTab"><i class="fas fa-plus"></i></button>
+<hr>
+<div class="buttonListsPanelTop row">
+  <div class="col-md">
+    <div class="bb_fontSizeControls">
+        <span><i class="fas fa-text-width"></i></span>
+        
+        <div class="bb_fontSizeControlsInputCol"><input  type="range" min=10 max=64 id='buttonFontSize'></div>
     </div>
-    
+  </div>
+  <div class="col-md-auto ml-lg-auto bb_tabActions">
+    <button class="bb_setButtonTabColor " type="button"><i class="fas fa-circle bb_setButtonTabColorSwatch"></i>Background</button>
+    <button id="bb_addNewButton" class="buttons btn-outline-success btn-rounded">
+    <i class="fas fa-plus"></i> Add a Button
+    </button>
+  </div>
 </div>
-<div class="buttonLists">
 
+<div class="buttonListsPanel">
+  <div class="buttonLists">
+  
+  </div>
 </div>
+
+
 
 
 <style type="text/css">
 
 *, *:before, *:after {
   box-sizing: border-box;
+}
+.bb_tabActions{
+  display:flex;
+  margin:0 -0.2em;
+  
+}
+.bb_tabActions button{
+  margin:0 0.2em;
+}
+.bb_fontSizeControls .fa-text-width{
+  font-size:1.5em;
+  color:#666;
+  display:block;
+  padding-top:0.4em;
+}
+.bb_tabActions .bb_setButtonTabColor{
+  appearance:none;
+  background-color:#fff;
+  border:1px solid #DADADA;
+  border-radius:20px;
+  color:#666;
+padding:0.1em 1em 0.1em 0.4em;
+font-weight:bold;
+margin-right:1em;
+}
+.bb_setButtonTabColorSwatch{
+  font-size:1.6em;
+  vertical-align:middle;
+  margin-right:0.2em;
+}
+.buttonListsPanel{
+  background-color:#f5f5f5;
+  border-radius:12px;
+  padding:1em 1.5em;
+  margin-top:1em;
+}
+.buttonListsPanelTop{
+  padding-top:0.5em;
 }
 .buttonList li,.buttonList{
     margin:0;
@@ -572,8 +654,6 @@ $( function() {
     border-bottom: 1px solid rgba(255,255,255,1);
 }
 #saveBigButtonConfigButton{
-    background-color:#2E4260;
-    color:#fff;
     background-image: url("data:image/svg+xml,%3Csvg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='12.3px' height='9.1px' viewBox='0 0 12.3 9.1' style='enable-background:new 0 0 12.3 9.1;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23FFFFFF;%7D%0A%3C/style%3E%3Cdefs%3E%3C/defs%3E%3Cpath class='st0' d='M3.5,8.8L0.3,5.7c-0.5-0.5-0.5-1.2,0-1.7l0,0C0.8,3.5,1.6,3.5,2,4l3.1,3.1c0.5,0.5,0.5,1.2,0,1.7l0,0 C4.7,9.3,4,9.3,3.5,8.8z'/%3E%3Cpath class='st0' d='M5.2,8.8L11.9,2c0.5-0.5,0.5-1.2,0-1.7l0,0c-0.5-0.5-1.2-0.5-1.7,0L3.5,7.1C3,7.6,3,8.3,3.5,8.8l0,0 C4,9.3,4.7,9.3,5.2,8.8z'/%3E%3C/svg%3E%0A");
     background-position: right 20px top 39px;
 	background-size: 13px;
@@ -598,11 +678,7 @@ $( function() {
 	margin-top: 0.5em;
 }
 #bb_addNewButton{
-    background-position: right 20px center;
-	background-size: 10px;
-    background-repeat:no-repeat;
-    background-image: url("data:image/svg+xml,%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 16.2 16.2' style='enable-background:new 0 0 16.2 16.2;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23171720;%7D%0A%3C/style%3E%3Cpath class='st0' d='M8.1,16.2L8.1,16.2c-0.6,0-1.1-0.5-1.1-1.1V1.1C7,0.5,7.5,0,8.1,0h0c0.6,0,1.1,0.5,1.1,1.1v13.9 C9.2,15.7,8.7,16.2,8.1,16.2z'/%3E%3Cpath class='st0' d='M0,8.1L0,8.1C0,7.5,0.5,7,1.1,7h13.9c0.6,0,1.1,0.5,1.1,1.1v0c0,0.6-0.5,1.1-1.1,1.1H1.1C0.5,9.2,0,8.7,0,8.1z' /%3E%3C/svg%3E%0A");   
-    padding-right:40px ;
+
 }
 .bb_fontSizeDisplay{
     display: block;

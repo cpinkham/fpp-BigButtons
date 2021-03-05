@@ -85,6 +85,9 @@ function getParameterByName(name, url = window.location.href) {
 function SetCurrentTab(i){
     $('.bb-nav-item[data-tab-index='+i+']').addClass('bb-active').siblings().removeClass('bb-active');
     $('.bb-tab-panel[data-tab-index='+i+']').addClass('bb-active').siblings().removeClass('bb-active');
+    $('body').css({
+      backgroundColor:'#'+$('.bb-tab-panel[data-tab-index='+i+']').data('color')
+    })
     document.title = $('.bb-nav-item[data-tab-index='+i+']').html();
 }
 $(function(){
@@ -107,7 +110,12 @@ $(function(){
                $tabPanel = $('<div class="bb-tab-panel"></div>').attr('data-tab-index',i);
                $navButton.click(function(){
                     SetCurrentTab(i);
-               })
+               });
+               var tabColor = 'f5f5f5';
+               if(tab.color){
+                tabColor=tab.color;
+               }
+               $tabPanel.data('color',tabColor);
                $('#bb-nav').append($navButton)
                $('#bb-tabs').append($tabPanel)
                if(getParameterByName('tab')){
