@@ -108,6 +108,13 @@ $(function(){
             $.each(pluginJson,function(i,tab){
                $navButton = $('<button class="bb-nav-item">'+tab.title+'</button>').attr('data-tab-index',i);
                $tabPanel = $('<div class="bb-tab-panel"></div>').attr('data-tab-index',i);
+               $tabPanelTabContainer = $('<div class="bb-tab-panel-tab-container"></div>');
+               if(tab.description){
+                $tabPanelDescription = $('<div class="bb-tab-panel-description">'+tab.description+'</div>');
+                $tabPanel.append($tabPanelDescription);              
+               }
+
+               $tabPanel.append($tabPanelTabContainer);
                $navButton.click(function(){
                     SetCurrentTab(i);
                });
@@ -134,7 +141,7 @@ $(function(){
                         color:'#fff'
                     }).addClass('bbw-'+Math.round(button.buttonWidthRatio*100))
                     .addClass('bbh-'+Math.round(button.buttonHeightValue));
-                    console.log(button)
+    
                    if(button.icon!=''){
                     $newButton.find('.bb-iconWrap').prepend('<i class="fas fa-'+button.icon+'"/>');
                    }
@@ -142,7 +149,7 @@ $(function(){
                         
                         var adjustmentKey = Object.keys(button["adjustable"])[0]-1;
                         var adjustmentType = button["adjustable"][adjustmentKey+1];
-                        console.log(adjustmentKey)
+                  
                         if(adjustmentType==='number'){
                             var $adjustableNumber = $($('#adjustableNumberTemplate').html());
                             $newButton.append(
@@ -195,7 +202,7 @@ $(function(){
                             sendButtonCommand(i,j);
                         })   
                     }
-                    $tabPanel.append($newButton);
+                    $tabPanelTabContainer.append($newButton);
                 })
 
 
@@ -261,7 +268,7 @@ var getForegroundColor = function(hexcolor) {
     body{
         margin:0;
         padding:0;
-        font-family:Helvetica,Arial,sans-serif;
+        font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
         font-weight:bold;
         font-size:16px;
     }
@@ -280,6 +287,12 @@ var getForegroundColor = function(hexcolor) {
     }
     .bb-buttonDescription{
         text-align:center;
+    }
+    .bb-tab-panel-description{
+      padding-top:0.5em;
+      padding-bottom:1em;
+      width:100%;
+      text-align:center;
     }
     .bb-button{
         flex-direction:column;
@@ -317,12 +330,19 @@ var getForegroundColor = function(hexcolor) {
     }
     .bb-tab-panel{
         display:none;
+
     }
-    .bb-tab-panel.bb-active{
+    .bb-tab-panel-tab-container{
+        flex:1;
         flex-wrap:wrap;
         display:flex;
         margin-left:-0.5%;
         margin-right:-0.5%;
+    }
+    .bb-tab-panel.bb-active {
+
+        display:block;
+
     }
     .bb-nav-item.bb-active{
         border-bottom:2px solid #F63939;

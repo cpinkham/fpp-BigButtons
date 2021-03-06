@@ -11,11 +11,23 @@ require 'bb-common.php';
 
 <template class="buttonTabTemplate">
     <li class="buttonTab">
-        <span class="buttonPageTitleValue"></span>
-        <span  class="toggleButtonPageTitleWrap">
-            <button class="bb_circleButton toggleButtonPageTitle"><i class="fpp-icon-edit"></i><i class="fpp-icon-check"></i></button>   
-        </span>
-         
+        <div class="buttonTabInner">
+          
+          <span class="buttonPageTitleValue"></span>
+          <span  class="toggleButtonPageTitleWrap">
+              <button class="bb_circleButton toggleButtonPageTitle"><i class="fpp-icon-edit"></i><i class="fpp-icon-check"></i></button>
+          </span>
+        </div>
+        <div class="hidden buttonTabSettings">
+            <div class="form-group">
+              <label>Title:</label>
+              <input type="text" class="form-control buttonPageTitleInput" placeholder="Name for this tab of buttons">
+            </div>
+            <div class="form-group">
+              <label>Description:</label>
+              <textarea class="form-control buttonPageDescription" placeholder="Optional"></textarea>
+            </div>
+          </div>
     </li>
 </template>
 <template class="configRowTemplate">

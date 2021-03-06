@@ -63,11 +63,13 @@ function SaveButtons() {
     
 
     $.each($('.buttonList'),function(tab_i,tab_v){
+        
         bigButtonsConfig[tab_i]={
             title: $('.buttonTabs .buttonPageTitleValue').eq(tab_i).html(),
             color: $('.buttonList[data-tab-id='+tab_i+']').data('color'),
             buttons:[],
-            fontSize: $('#buttonFontSize').val()
+            fontSize: $('#buttonFontSize').val(),
+            description: $('.buttonTab[data-tab-id='+tab_i+']').find('.buttonPageDescription').val()
         };
         $.each($(tab_v).children(),function(i,v){
             var key = ""+i;
@@ -76,6 +78,7 @@ function SaveButtons() {
 
         });
     }); 
+    console.log(bigButtonsConfig);
     SaveBigButtonConfig(bigButtonsConfig);
 }
 
@@ -99,7 +102,9 @@ function updateButtonRow(i,v,tab_i){
     return $newButtonRow;
 }
 function updateButtonLists() {
-    $.each($('.buttonList'), function() {
+    $.each($('.buttonList'), function(tab_i,tab_v) {
+        var $buttonTab = $('.buttonTab[data-tab-id='+$(tab_v).data('tab-id')+']');
+        $(tab_v).add($buttonTab).attr('data-tab-id',tab_i).data('tab-id',tab_i);
         $.each($(this).children(), function(iteration, value) {
             $(this).removeClass('bb_newButton');
             updateButtonRow(iteration,value,$(this).parent().data('tab-id'));
@@ -161,6 +166,7 @@ function createButtonRow(i,v,tab_i){
     var newButtonRowCommand = 'button_'+tab_i+'-'+i+'_Command';
     var newButtonRowTitle = 'button_'+tab_i+'-'+i+'_Title';
     var newButtonRowTable = 'tableButton'+tab_i+'-'+i;
+
     $newButtonRow.data('bbKey',i);
     $newButtonRow.find('.buttonCommand').attr('id',newButtonRowCommand).on('change',function(){
         CommandSelectChanged(newButtonRowCommand, newButtonRowTable, true);
@@ -187,7 +193,7 @@ function createButtonRow(i,v,tab_i){
         })
     });
 
-    $('.buttonLists').children().eq(tab_i).append($newButtonRow);
+    $('.buttonList[data-tab-id='+tab_i+']').append($newButtonRow);
     LoadCommandList('button_'+tab_i+'-'+i+'_Command');
     var buttonWidthRatio = 0.5;
     var buttonHeightValue = 18;
@@ -372,27 +378,80 @@ $( function() {
         }
     });
 
-
+function setActiveTab($buttonTab){
+    var $buttonList = $('.buttonList[data-tab-id='+$buttonTab.data('tab-id')+']')
+    $buttonTab.addClass('bb-active').siblings().removeClass('bb-active');
+    $buttonList.addClass('bb-active').siblings().removeClass('bb-active');
+    setTabColor($('.buttonList.bb-active'),$buttonList.data('color'));
+}
 
     function createTab(title,tab_i,tab_v){
         var $buttonTab = $($('.buttonTabTemplate').html());
         $buttonTab.find('.buttonPageTitleValue').html(title);
+        
+        
         $buttonTab.attr('data-tab-id',tab_i);
         var $newButtonList = $('<ul class="buttonList"></ul>').attr('data-tab-id',tab_i);
         $buttonTab.find('.buttonPageTitleValue').click(function(){
-            $buttonTab.addClass('bb-active').siblings().removeClass('bb-active');
-            $newButtonList.addClass('bb-active').siblings().removeClass('bb-active');
-            setTabColor($('.buttonList.bb-active'),$newButtonList.data('color'));
+            setActiveTab($buttonTab)
+        });
+        if(tab_v){
+            if(tab_v.description){
+                $buttonTab.find('.buttonPageDescription').val(tab_v.description)
+            }
+        }
+        // $buttonTab.find('.toggleButtonPageTitle').click(function(){
+        //     if($buttonTab.find('.buttonPageTitleValue').is("[contenteditable]")){
+        //         $buttonTab.removeClass('editable');
+        //         $buttonTab.find('.buttonPageTitleValue').removeAttr('contenteditable');
+        //     }else{
+        //         $buttonTab.addClass('editable');
+        //         $buttonTab.find('.buttonPageTitleValue').attr('contenteditable','').focus();
+        //     }
+        // });
+        $buttonTab.find('.buttonPageTitleInput').val(title).on('input',function(){
+            $buttonTab.find('.buttonPageTitleValue').html(
+                $buttonTab.find('.buttonPageTitleInput').val()
+            )
         });
         $buttonTab.find('.toggleButtonPageTitle').click(function(){
-            if($buttonTab.find('.buttonPageTitleValue').is("[contenteditable]")){
-                $buttonTab.removeClass('editable');
-                $buttonTab.find('.buttonPageTitleValue').removeAttr('contenteditable');
-            }else{
-                $buttonTab.addClass('editable');
-                $buttonTab.find('.buttonPageTitleValue').attr('contenteditable','').focus();
-            }
-        });
+            $buttonTab.find('.buttonTabSettings').fppDialog({
+                title: 'Tab Settings',
+                buttons:{
+                    "Delete This Tab":{
+                        class:'btn-outline-danger fpp-icon-trash',
+                        click:function(){
+                            $buttonTab.find('.buttonTabSettings').fppDialog('close');
+                            $buttonTab.animate({
+                                opacity:0
+                            },500,function(){
+                                if($('.buttonTab').length>1){
+                                    $buttonTab.remove();
+                                    $newButtonList.remove();
+                                    bigButtonsConfig.splice($buttonTab.data('tab-id'), 1);
+                                    updateButtonLists();
+                                    setActiveTab($('.buttonTab').eq(0))
+                                }else{
+                                    alert('You must have at least one tab');
+                                }
+
+                            });
+                            
+                        }
+                    },
+                    Done:{
+                        class:'btn-success',
+                        click:function(){
+                            $buttonTab.find('.buttonTabSettings').fppDialog('close')
+                        }
+                    },
+
+                }
+            });
+            $buttonTab.find('.modal-footer').addClass('justify-content-between');
+            
+        })
+        
 
         $newButtonList.sortable({
             handle: ".bb_configRowHandle",

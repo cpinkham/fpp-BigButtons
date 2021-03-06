@@ -374,25 +374,33 @@
   }
   .buttonTab {
       list-style:none;
-      padding:0em 0.6em;
-      margin:0 0.2em;
-      position:relative;
-      font-weight:bold;
-      border-radius:10px;
-      border:1px solid #DADADA;
       display:flex;
-      align-items:center;
-      transition:0.1s cubic-bezier(0.390, 0.575, 0.565, 1.000);
   }
-  .buttonTab:hover,.buttonTab.editable{
-  
+  .buttonTabInner{
+    position:relative;
+    padding:0em 0.6em;
+    margin:0 0.2em;
+    width: 100%;
+    height: 100%;
+    border-radius:10px;
+    border:1px solid #DADADA;
+    align-items:center;
+    display: flex;
+    transition:0.1s cubic-bezier(0.390, 0.575, 0.565, 1.000);
   }
-  .buttonTab.bb-active {
-      color:#fff;
+  .buttonTab .buttonPageTitleValue{
+    font-weight:bold;
+  }
+
+  .buttonTab.bb-active .buttonTabInner {
+      
       background-color:#F63939;
       border-color:#F63939;
   }
-  .buttonTab.ui-droppable-hover {
+  .buttonTab.bb-active .buttonPageTitleValue{
+    color:#fff;
+  }
+  .buttonTab.ui-droppable-hover .buttonTabInner {
       transform:scale(1.1);
       border:1px solid rgba(0,0,0,0.15);
       background-color:rgba(0,0,0,0.1);
@@ -409,11 +417,11 @@
       opacity:0;
       transition:0.1s cubic-bezier(0.390, 0.575, 0.565, 1.000);
   }
-  .buttonTab:hover .toggleButtonPageTitle, .buttonTab.editable .toggleButtonPageTitle{
+  .buttonTabInner:hover .toggleButtonPageTitle, .buttonTab.editable .toggleButtonPageTitle{
       transform:scale(1);
       opacity:1;   
   }
-  .buttonTab:hover .toggleButtonPageTitleWrap{
+  .buttonTabInner:hover .toggleButtonPageTitleWrap{
       width:30px;
   }
   .buttonTab.editable .toggleButtonPageTitle{ 
