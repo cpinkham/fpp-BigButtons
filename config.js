@@ -167,7 +167,7 @@ function createButtonRow(i,v,tab_i){
         setButtonCommandSummaryTitle($newButtonRow,$(this).val());
     })
     
-    $newButtonRow.find('.buttonTitle, .bb_icon').attr('id',newButtonRowTitle).css({
+    $newButtonRow.find('.buttonTitle').attr('id',newButtonRowTitle).add('.bb_icon').css({
         fontSize:bigButtonsConfig[0].fontSize
     });
     
@@ -347,7 +347,7 @@ $( function() {
     
                 })
                 $('#buttonFontSize').val(bigButtonsConfig[tab_i].fontSize).on('input change',function(){
-           
+                    $('.bb_fontSizeDisplay').html($(this).val());
                     bigButtonsConfig[tab_i]['fontSize']=$(this).val();
                     $('.buttonTitle, .bb_icon').css({
                         fontSize:parseInt($('#buttonFontSize').val())
