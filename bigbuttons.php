@@ -9,7 +9,7 @@ require_once("fppversion.php");
 $jquery = glob("/opt/fpp/www/js/jquery-*.min.js");
 printf("<script type='text/javascript' src='js/%s'></script>\n", basename($jquery[0]));
 ?>
-
+<link rel="stylesheet" href="css/fontawesome.all.min.css" />
 <script type="text/javascript">
 var pluginJson;
 var fppVersionTriplet;
@@ -134,7 +134,10 @@ $(function(){
                         color:'#fff'
                     }).addClass('bbw-'+Math.round(button.buttonWidthRatio*100))
                     .addClass('bbh-'+Math.round(button.buttonHeightValue));
-                   
+                    console.log(button)
+                   if(button.icon!=''){
+                    $newButton.find('.bb-iconWrap').prepend('<i class="fas fa-'+button.icon+'"/>');
+                   }
                     if(button["adjustable"] !== undefined ){
                         
                         var adjustmentKey = Object.keys(button["adjustable"])[0]-1;
@@ -189,7 +192,6 @@ $(function(){
                     }else{
                         
                         $newButton.on('click',function(){
-                            console.log('clicking')
                             sendButtonCommand(i,j);
                         })   
                     }
@@ -238,9 +240,9 @@ var getForegroundColor = function(hexcolor) {
 </template>
 <template id="buttonTemplate">
     <div class="bb-button">
+        <div class="bb-iconWrap"></div>
         <div class="bb-buttonDescription">
         </div>
-        
     </div>
 </template>
 <div class="bb-header">
@@ -269,6 +271,9 @@ var getForegroundColor = function(hexcolor) {
     #bb-buttonList{
         display: flex;
         margin:1%;
+    }
+    .bb-iconWrap{
+      margin-bottom:0.2em;
     }
     .bb-tab-panel{
         padding:4px;
