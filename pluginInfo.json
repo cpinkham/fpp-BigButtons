@@ -17,12 +17,12 @@
 			"minFPPVersion": "3.5.0",
 			"maxFPPVersion": "4.99",
 			"branch": "master",
-			"sha": ""
+			"sha": "49b43cb72a0b1eb2a4795013277b669bcfab78de"
 		},
 		{
 			"minFPPVersion": "5.0",
 			"maxFPPVersion": "0",
-			"branch": "newui",
+			"branch": "master",
 			"sha": ""
 		}
 	]

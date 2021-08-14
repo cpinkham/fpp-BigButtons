@@ -1,190 +1,121 @@
-
 <?
 require 'bb-common.php';
-$pluginJson = convertAndGetSettings();
 ?>
-
 
 <div id="global" class="settings">
-<fieldset>
-<legend>Big Buttons Config</legend>
+<link  rel="stylesheet" href="/jquery/colpick/css/colpick.css"/>
+<link  rel="stylesheet" href="/plugin.php?plugin=fpp-BigButtons&page=config.css&nopage=1"/>
+<script src="/jquery/colpick/js/colpick.js"></script>
+<script src="/plugin.php?plugin=fpp-BigButtons&page=fa-icons.js&nopage=1"></script>
+<script src="/plugin.php?plugin=fpp-BigButtons&page=config.js&nopage=1"></script>
 
-<script>
-function ButtonColorChanged(id)
-{
-	var selectID = "button_" + id + "_color";
-	var color = $('#' + selectID).val();
-	$('#row' + id).css("background-color", color);
-}
+<template class="buttonTabTemplate">
+    <li class="buttonTab">
+        <div class="buttonTabInner">
+          
+          <span class="buttonPageTitleValue"></span>
+          <span  class="toggleButtonPageTitleWrap">
+              <button class="bb_circleButton toggleButtonPageTitle"><i class="fpp-icon-edit"></i><i class="fpp-icon-check"></i></button>
+          </span>
+        </div>
+        <div class="hidden buttonTabSettings">
+            <div class="form-group">
+              <label>Title:</label>
+              <input type="text" class="form-control buttonPageTitleInput" placeholder="Name for this tab of buttons">
+            </div>
+            <div class="form-group">
+              <label>Description:</label>
+              <textarea class="form-control buttonPageDescription" placeholder="Optional"></textarea>
+            </div>
+          </div>
+    </li>
+</template>
+<template class="configRowTemplate">
+    <li class="ui-state-default bb_configRow">
+        <div class="bb_configRowHandle">
+            <div class="rowGrip">
+                  <i class="rowGripIcon fpp-icon-grip"></i>
+            </div>
+        </div>
+        
+        <div class="bb_configRowBody">
+            <div class="bb_iconWrap">
+              <i class="bb_icon"><span class="bb_iconPlaceholder">Add an icon</span></i>
+            </div>
+            <div class="bb_buttonTitleWrap">
+                <input type='text' class="buttonTitle" placeholder="Name Your Button" id='button_TPL_Title' maxlength='80'  value='<?=$description;?>'></input>
+            </div>
+            <div class="bb_commandSummary">
+                <i class="fas fa-fw fa-terminal fa-nbsp"></i><strong class="bb_commandSummaryTitle"></strong><button class="buttons btn-outline-light bb_commandEditButton"><i class="fas fa-cog"></i></button>
+            </div>
+        </div>
 
+        <div class="buttonCommandWrap">
+            <select id='button_TPL_Command' class="buttonCommand"><option value="" disabled selected>Select a Command</option></select>
+            <div class="bb_commandTableWrap">
+                <div class="bb_commandTableCrop">
+                <table border=0 id='tableButtonTPL' class="tableButton">
 
-
-var bigButtonsConfig = <?
-if (json_encode($pluginJson, JSON_PRETTY_PRINT) == "null")
-    echo '{ "title": "", "fontSize": 12, "buttons": { "1": {}}}';
-else
-    echo json_encode($pluginJson, JSON_PRETTY_PRINT);
-?>;
-
-function SaveBigButtonConfig(config) {
-    var data = JSON.stringify(config);
-    $.ajax({
-        type: "POST",
-        url: 'fppjson.php?command=setPluginJSON&plugin=fpp-BigButtons',
-        dataType: 'json',
-        async: false,
-        data: data,
-        processData: false,
-        contentType: 'application/json',
-        success: function (data) {
-           //bigButtonsConfig = data;
-        }
-    });
-}
-
-function buttonFontSizeChanged() {
-    bigButtonsConfig['fontSize'] = parseInt($('#buttonFontSize').val());
-}
-
-function GetButton(i) {
-    var button = {
-        "description": $('#button_' + i + '_Title').val(),
-        "color": $('#button_' + i + '_color').val()
-    };
-    CommandToJSON('button_' + i + '_Command', 'tableButton' + i, button);
-    return button;
-}
-function SaveButtons() {
-    for (var x = 1; x <= 20; x++) {
-        var key = "" + x;
-        var button = GetButton(x);
-        if (button.description != ""
-            && button.command != "") {
-            bigButtonsConfig["buttons"][key] = button;
-        } else if (bigButtonsConfig["buttons"][key] != null) {
-            delete bigButtonsConfig["buttons"][key];
-        }
-    }
-    SaveBigButtonConfig(bigButtonsConfig);
-}
-
-</script>
-<?
-
-$colorList = array();
-array_push($colorList, "aqua");
-array_push($colorList, "blue");
-array_push($colorList, "chocolate");
-array_push($colorList, "coral");
-array_push($colorList, "cyan");
-array_push($colorList, "darkcyan");
-array_push($colorList, "green");
-array_push($colorList, "grey");
-array_push($colorList, "ivory");
-array_push($colorList, "lightblue");
-array_push($colorList, "lightcoral");
-array_push($colorList, "lightcyan");
-array_push($colorList, "lightgrey");
-array_push($colorList, "lightgreen");
-array_push($colorList, "lightpink");
-array_push($colorList, "lightyellow");
-array_push($colorList, "olive");
-array_push($colorList, "orange");
-array_push($colorList, "pink");
-array_push($colorList, "plum");
-array_push($colorList, "purple");
-array_push($colorList, "red");
-array_push($colorList, "slategrey");
-array_push($colorList, "tan");
-array_push($colorList, "white");
-array_push($colorList, "whitesmoke");
-array_push($colorList, "yellow");
-
-function PrintFontSizes($cur2) {
-    $cur = (int)$cur2;
-    
-    for ($i = 10; $i <= 64; $i += 2) {
-        echo "<option value='" . $i . "'";
-        if ($i == $cur) {
-            echo " selected";
-        }
-        echo ">" . $i . "</option>";
-    }
-}
-function PrintColors($cur) {
-    global $colorList;
-    foreach ($colorList as $color) {
-        echo "<option value='$color'";
-        if ($color == $cur) {
-            echo " selected";
-        }
-        echo ">$color</option>\n";
-    }
-}
-
-?>
-
-<table border=0>
-<tr><td>Button Page Title:</td><td><input type='text' id='buttonTitle' maxlength='80' size='50' value='<? echo $pluginJson["title"] ?>'></input></td></tr>
-<tr><td>Text Font Size:</td><td><select id='buttonFontSize' onChange='buttonFontSizeChanged();'><? PrintFontSizes($pluginJson["fontSize"]) ?></select></td></tr>
-<tr><td><input type="button" value="Save" class="buttons" onclick="SaveButtons();"></td></tr>
-</table>
-<script>
-        $('#buttonTitle').on('change keydown paste input', function() {
-            bigButtonsConfig['title'] = $('#buttonTitle').val();
-            SaveBigButtonConfig();
-        });
-</script>
-
-<table border=1>
-<?
-for ($x = 1; $x <= 20; $x++) {
-    
-    if ($x % 2) {
-        echo "<tr>";
-    }
-    
-    $description = "";
-    $color = "aqua";
-    $command = "";
-    $buttonJson = array();
-    $buttonJson["command"] = "";
-    if (is_array($pluginJson) && array_key_exists("buttons", $pluginJson)
-        && array_key_exists($x, $pluginJson["buttons"])) {
-        $buttonJson = $pluginJson["buttons"][$x];
-        $description = returnIfExists($pluginJson["buttons"][$x], "description");
-        $color = returnIfExists($pluginJson["buttons"][$x], "color");;
-        $command = returnIfExists($pluginJson["buttons"][$x], "command");;
-    }
-
-?>
-    <td id='row<?=$x;?>'>Button #<?=$x;?></td>
-	<td><table border=0 id='tableButton<?=$x; ?>'>
-    
-	<tr><td>Description:</td><td><input type='text' id='button_<?=$x;?>_Title' maxlength='80' size='40' value='<?=$description;?>'></input></td></tr>
-	<tr><td>Color:</td>
-        <td><select id='button_<?=$x;?>_color' onChange='ButtonColorChanged(<?=$x;?>);'><? PrintColors($color); ?></select></td></tr>
-    <tr><td>Command:</td>
-        <td><select id='button_<?=$x;?>_Command' onChange='CommandSelectChanged("button_<?=$x; ?>_Command", "tableButton<?=$x;?>", true);'><option value=""></option></select></td></tr>
-	</table>
-	</td>
-	<script>
-        ButtonColorChanged(<?=$x;?>);
-        LoadCommandList('button_<?=$x;?>_Command');
-	</script>
-<?
-    if (!($x % 2)) {
-        echo "</tr>";
-    }
-}
-?>
-</table>
+                </table>            
+                </div>
+            </div>
+        </div>
 
 
-<script>
-<?
-for ($x = 1; $x <= 20; $x++) {
-    echo "PopulateExistingCommand(bigButtonsConfig['buttons'][\"" . $x . "\"], 'button_" . $x . "_Command', 'tableButton" . $x . "', true);\n";
-}
-?>
-</script>
+        <div class="bb_buttonActions">
+            <button id='button_TPL_color' class="bb_circleButton buttonColor" type="button"><i class="fas fa-paint-brush"></i></button>
+            <button class="bb_circleButton buttonDelete">Delete</button>
+        </div>
+        
+    </li>
+</template>
+
+<div class="row tablePageHeader">
+    <div class="col-md">
+      <div class="buttonTabWrapper">
+        <ul class="buttonTabs">
+        
+        </ul>
+        <div>
+            <button id="bb_addNewTab"><i class="fas fa-plus"></i></button>
+        </div>
+        
+      </div>
+    </div>
+    <div class="col-md-auto ml-lg-auto">
+      <div class="bb_actionButtons ">
+          <input type="button" value="Save Buttons" class="buttons btn-success" id="saveBigButtonConfigButton">
+
+      </div>   
+    </div>
+
+
+</div>
+<hr>
+<div class="buttonListsPanelTop row">
+  <div class="col-md">
+    <div class="bb_fontSizeControls">
+        <span><i class="fas fa-text-width"></i></span>
+        
+        <div class="bb_fontSizeControlsInputCol"><input  type="range" min=10 max=64 id='buttonFontSize'></div>
+    </div>
+  </div>
+  <div class="col-md-auto ml-lg-auto bb_tabActions">
+    <button class="bb_setButtonTabColor " type="button"><i class="fas fa-circle bb_setButtonTabColorSwatch"></i>Background</button>
+    <button id="bb_addNewButton" class="buttons btn-outline-success btn-rounded">
+    <i class="fas fa-plus"></i> Add a Button
+    </button>
+  </div>
+</div>
+
+<div class="buttonListsPanel">
+  <div class="buttonLists">
+  
+  </div>
+</div>
+<div class="bb_iconSelector hidden">
+  <input type="text" class="form-control bb_iconSelectorSearch" placeholder="Find an Icon" />
+  <div class="bb_iconSelectorIcons">
+
+  </div>
+</div>
