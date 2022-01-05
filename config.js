@@ -273,7 +273,7 @@ function bbHandleWindowResize(){
     bb.pageContentWidth = $('.buttonLists').width();
 }
 $( function() {
-
+    allowMultisyncCommands = true;
     $(window).resize(bbHandleWindowResize);
     bbHandleWindowResize();
     $.each(faIcons,function(i,v){
