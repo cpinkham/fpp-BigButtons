@@ -78,7 +78,6 @@ function SaveButtons() {
 
         });
     }); 
-    console.log(bigButtonsConfig);
     SaveBigButtonConfig(bigButtonsConfig);
 }
 
@@ -286,7 +285,7 @@ $( function() {
         $('.bb_iconSelectorIcons').append(icon)
     });
     $('.bb_iconSelectorSearch').on('input',function(){
-
+        
         $('.bb_iconSelectorIcons i').each(function(){
             var term = $('.bb_iconSelectorSearch').val();
             var title = $(this).data('title');
@@ -448,6 +447,10 @@ function setActiveTab($buttonTab){
 
                 }
             });
+            $buttonTab.find('.modal').on('shown.bs.modal',function(){
+                $buttonTab.find('.buttonPageTitleInput').get(0).focus();
+            })
+            
             $buttonTab.find('.modal-footer').addClass('justify-content-between');
             
         })

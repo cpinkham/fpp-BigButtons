@@ -452,6 +452,9 @@
   .buttonTab.editable .buttonPageTitleValue{
       cursor: text;
   }
+  .bb_iconSelectorIcons i.hidden {
+    display: none;
+  }
   
   @-webkit-keyframes scale-up-center {
     0% {
