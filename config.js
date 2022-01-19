@@ -338,7 +338,15 @@ $( function() {
             }
 
             if(bigButtonsConfig.length<1){
-                bigButtonsConfig.push([{ "title": "", "fontSize": 12, "buttons": { "1": {}}}])
+                bigButtonsConfig.push({
+                    "title": "New Tab",
+                    "buttons": [
+                        {
+                            "color": "#2faee0",
+                        }
+                    ],
+                    "fontSize": "20"
+                })
             }
             
             $.each(bigButtonsConfig,function(tab_i,tab_v){
