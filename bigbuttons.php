@@ -6,7 +6,7 @@ require_once("common.php");
 require_once("bb-common.php");
 require_once("fppversion.php");
 
-$jquery = glob("/opt/fpp/www/js/jquery-*.min.js");
+$jquery = glob("$fppDir/www/js/jquery-*.min.js");
 printf("<script type='text/javascript' src='js/%s'></script>\n", basename($jquery[0]));
 ?>
 <link rel="stylesheet" href="css/fontawesome.all.min.css" />
