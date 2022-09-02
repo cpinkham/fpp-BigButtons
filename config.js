@@ -29,7 +29,6 @@ var legacyColorNames={"aqua":'00FFFF',
 "whitesmoke":'F5F5F5',
 "yellow":'FFFF00'}
 
-allowMultisyncCommands = true;
 
 function SaveBigButtonConfig(config) {
     var data = JSON.stringify(config);
