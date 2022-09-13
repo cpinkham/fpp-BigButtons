@@ -9,21 +9,27 @@ require_once("fppversion.php");
 $jquery = glob("$fppDir/www/js/jquery-*.min.js");
 printf("<script type='text/javascript' src='js/%s'></script>\n", basename($jquery[0]));
 ?>
+<script src="js/jquery.jgrowl.min.js"> </script> 
 <link rel="stylesheet" href="css/fontawesome.all.min.css" />
+<link rel="stylesheet" href="css/jquery.jgrowl.min.css" />
+<link rel="stylesheet" href="css/fpp-bootstrap/dist/fpp-bootstrap.css" />
 <script type="text/javascript">
 var pluginJson;
 var fppVersionTriplet;
 
 function sendButtonCommand(tab_i,j)
 {    
-    var url = "api/command/";
-    url += pluginJson[tab_i]["buttons"][j]["command"];
+    var url = "api/command/";   
     
     if (fppVersionTriplet != "3.5.0") { 
-        var data = new Array();
-        $.each( pluginJson[tab_i]["buttons"][j]["args"], function(i, v) {
-           data.push(v);
-        });
+        var data = new Object();
+        data["command"] = pluginJson[tab_i]["buttons"][j]["command"];
+		data["args"] = pluginJson[tab_i]["buttons"][j]["args"];
+		data["multisyncCommand"]  = pluginJson[tab_i]["buttons"][j]["multisyncCommand"];
+		if (data["multisyncCommand"]  = pluginJson[tab_i]["buttons"][j]["multisyncCommand"] == true){
+			data["multisyncHosts"] = pluginJson[tab_i]["buttons"][j]["multisyncHosts"];
+		}        
+       
         $.ajax({
             type: "POST",
             url: url,
@@ -159,6 +165,8 @@ $(function(){
                             var command = button.command;
                             $slider.on('change',function(){
                                 tab['buttons'][j]['args'][adjustmentKey] = $(this).val();
+                                $newButton.find('#sliderValue').html($(this).val()); 
+								$.jGrowl(button.description + " has been activated",{themeState:'success'});
                                 sendButtonCommand(i,j);
                             })
                             
@@ -199,6 +207,7 @@ $(function(){
                     }else{
                         
                         $newButton.on('click',function(){
+                            $.jGrowl(button.description + " has been activated",{themeState:'success'});
                             sendButtonCommand(i,j);
                         })   
                     }
@@ -243,6 +252,7 @@ var getForegroundColor = function(hexcolor) {
 <template id="adjustableNumberTemplate">
 <div class="bb-buttonSlider">
     <input type="range" />
+    <p>Value: <span id="sliderValue"></span></p>
 </div>
 </template>
 <template id="buttonTemplate">
