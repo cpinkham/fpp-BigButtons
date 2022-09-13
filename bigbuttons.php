@@ -112,30 +112,30 @@ $(function(){
             $(document).prop('title', pluginJson.title);
             
             $.each(pluginJson,function(i,tab){
-               $navButton = $('<button class="bb-nav-item">'+tab.title+'</button>').attr('data-tab-index',i);
-               $tabPanel = $('<div class="bb-tab-panel"></div>').attr('data-tab-index',i);
-               $tabPanelTabContainer = $('<div class="bb-tab-panel-tab-container"></div>');
-               if(tab.description){
-                $tabPanelDescription = $('<div class="bb-tab-panel-description">'+tab.description+'</div>');
-                $tabPanel.append($tabPanelDescription);              
-               }
+                $navButton = $('<button class="bb-nav-item">'+tab.title+'</button>').attr('data-tab-index',i);
+                $tabPanel = $('<div class="bb-tab-panel"></div>').attr('data-tab-index',i);
+                $tabPanelTabContainer = $('<div class="bb-tab-panel-tab-container"></div>');
+                if(tab.description){
+                    $tabPanelDescription = $('<div class="bb-tab-panel-description">'+tab.description+'</div>');
+                    $tabPanel.append($tabPanelDescription);              
+                }
 
-               $tabPanel.append($tabPanelTabContainer);
-               $navButton.click(function(){
+                $tabPanel.append($tabPanelTabContainer);
+                $navButton.click(function(){
                     SetCurrentTab(i);
-               });
-               var tabColor = 'f5f5f5';
-               if(tab.color){
-                tabColor=tab.color;
-               }
-               $tabPanel.data('color',tabColor);
-               $('#bb-nav').append($navButton)
-               $('#bb-tabs').append($tabPanel)
-               if(getParameterByName('tab')){
+                });
+                var tabColor = 'f5f5f5';
+                if (tab.color) {
+                    tabColor=tab.color;
+                }
+                $tabPanel.data('color',tabColor);
+                $('#bb-nav').append($navButton)
+                $('#bb-tabs').append($tabPanel)
+                if(getParameterByName('tab')){
                     if(getParameterByName('tab')==slugify(tab.title)){
                         SetCurrentTab(i);
                     }
-               }
+                }
 
                 $.each(tab.buttons,function(j,button){
                 
@@ -148,9 +148,9 @@ $(function(){
                     }).addClass('bbw-'+Math.round(button.buttonWidthRatio*100))
                     .addClass('bbh-'+Math.round(button.buttonHeightValue));
     
-                   if(button.icon!=''){
-                    $newButton.find('.bb-iconWrap').prepend('<i class="fas fa-'+button.icon+'"/>');
-                   }
+                    if(button.icon!=''){
+                        $newButton.find('.bb-iconWrap').prepend('<i class="fas fa-'+button.icon+'"/>');
+                    }
                     if(button["adjustable"] !== undefined ){
                         
                         var adjustmentKey = Object.keys(button["adjustable"])[0]-1;
@@ -183,16 +183,14 @@ $(function(){
                                         async: false,
                                         url: commandResponse['args'][adjustmentKey]['adjustableGetValueURL'],
                                         success: function(commandResponse) {
-                                                
                                                 tab['buttons'][j]['args'][adjustmentKey] = commandResponse;
                                                 $slider.val(commandResponse);
+                                                $newButton.find('#sliderValue').html(commandResponse); 
                                         }
                                     });
                                 }
                             });  
-                        }
-                        else if(adjustmentType=='text'){
-                            
+                        } else if(adjustmentType=='text'){
                             var $adjustableText = $($('#adjustableTextTemplate').html());
                             $newButton.append(
                                 $adjustableText
@@ -203,9 +201,7 @@ $(function(){
                                 sendButtonCommand(i,j);
                             })
                         }
-
-                    }else{
-                        
+                    } else {
                         $newButton.on('click',function(){
                             $.jGrowl(button.description + " has been activated",{themeState:'success'});
                             sendButtonCommand(i,j);
@@ -213,10 +209,6 @@ $(function(){
                     }
                     $tabPanelTabContainer.append($newButton);
                 })
-
-
-
-
             });
             if($('.bb-active').length<1){
                 SetCurrentTab(0);
