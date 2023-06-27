@@ -34,7 +34,7 @@ function SaveBigButtonConfig(config) {
     var data = JSON.stringify(config);
     $.ajax({
         type: "POST",
-        url: 'fppjson.php?command=setPluginJSON&plugin=fpp-BigButtons',
+        url: 'api/configfile/plugin.fpp-BigButtons.json',
         dataType: 'json',
         async: false,
         data: data,
@@ -272,6 +272,7 @@ function createButtonRow(i,v,tab_i){
 function bbHandleWindowResize(){
     bb.pageContentWidth = $('.buttonLists').width();
 }
+
 $( function() {
     allowMultisyncCommands = true;
     $(window).resize(bbHandleWindowResize);
@@ -314,83 +315,85 @@ $( function() {
         bigButtonsConfig[0]['title'] = $(this).val();
     });
 
-    $.ajax({
-        type: "GET",
-        url: 'fppjson.php?command=getPluginJSON&plugin=fpp-BigButtons',
-        //url: 'legacyBigButtonsSampleConfig.json',
-        dataType: 'json',
-        contentType: 'application/json',
-        success: function (data) {
 
-            if(typeof data==="string"){
-                bigButtonsConfig = $.parseJSON(data);
-            }else{
-                bigButtonsConfig = data;
-            }
-            if(!Array.isArray(bigButtonsConfig)){
-                // if the json is a flat array, it is a legacy config
-                // so we need to upgrade to support multiple tabs
-                $.each(bigButtonsConfig.buttons,function(i,v){
-             
-                    bigButtonsConfig.buttons[i].color=legacyColorNames[v.color]
-                })
-                bigButtonsConfig = [bigButtonsConfig];
-            }
-
-            if(bigButtonsConfig.length<1){
-                bigButtonsConfig.push({
-                    "title": "New Tab",
-                    "buttons": [
-                        {
-                            "color": "#2faee0",
-                        }
-                    ],
-                    "fontSize": "20"
-                })
-            }
-            
-            $.each(bigButtonsConfig,function(tab_i,tab_v){
-                var tab = createTab(tab_v.title,tab_i,tab_v);
-                $.each(bigButtonsConfig[tab_i].buttons,function(i,v){                   
-                    $newButtonRow=createButtonRow(i,v,tab_i);
-                    $newButtonRow.find('.buttonTitle').val(v.description);
-                    $newButtonRow.find('.buttonColor').val(v.color);
-                    PopulateExistingCommand(v, 'button_'+tab_i+'-'+i+'_Command',  'tableButton'+tab_i+'-'+i, true);
-                    setButtonCommandSummaryTitle($newButtonRow,$('#button_'+tab_i+'-'+i+'_Command').val());
-    
-                })
-                $('#buttonFontSize').val(bigButtonsConfig[tab_i].fontSize).on('input change',function(){
-                    $('.bb_fontSizeDisplay').html($(this).val());
-                    bigButtonsConfig[tab_i]['fontSize']=$(this).val();
-                    $('.buttonTitle, .bb_icon').css({
-                        fontSize:parseInt($('#buttonFontSize').val())
-                    });
-                });
-                $('.bb_fontSizeDisplay').html(bigButtonsConfig[tab_i].fontSize);           
-            });
-            $( ".buttonList" ).disableSelection();
-            $('.buttonTabs').children().eq(0).addClass('bb-active');
-            $('.buttonLists').children().eq(0).addClass('bb-active');
-
-            setTabColor($('.buttonList.bb-active'),$('.buttonList.bb-active').data('color'));
-            $('.bb_setButtonTabColor').colpick({
-                colorScheme:'flat',
-                layout:'rgbhex',
-                color:$('.buttonList.bb-active').data('color'),
-                onSubmit:function(hsb,newHex,rgb,el) {
-                  setTabColor($('.buttonList.bb-active'),newHex);
-                  $(el).colpickHide()
-                }
-            });
-        }
+    $.get('api/configfile/plugin.fpp-BigButtons.json')
+    .done(function(data) {
+        processBigButtonConfig(data);
+    })
+    .fail(function(data) {
+        processBigButtonConfig('[]');
     });
 
-function setActiveTab($buttonTab){
-    var $buttonList = $('.buttonList[data-tab-id='+$buttonTab.data('tab-id')+']')
-    $buttonTab.addClass('bb-active').siblings().removeClass('bb-active');
-    $buttonList.addClass('bb-active').siblings().removeClass('bb-active');
-    setTabColor($('.buttonList.bb-active'),$buttonList.data('color'));
-}
+    function processBigButtonConfig(data) {
+        if(typeof data==="string"){
+            bigButtonsConfig = $.parseJSON(data);
+        }else{
+            bigButtonsConfig = data;
+        }
+        if(!Array.isArray(bigButtonsConfig)){
+            // if the json is a flat array, it is a legacy config
+            // so we need to upgrade to support multiple tabs
+            $.each(bigButtonsConfig.buttons,function(i,v){
+         
+                bigButtonsConfig.buttons[i].color=legacyColorNames[v.color]
+            })
+            bigButtonsConfig = [bigButtonsConfig];
+        }
+    
+        if(bigButtonsConfig.length<1){
+            bigButtonsConfig.push({
+                "title": "New Tab",
+                "buttons": [
+                    {
+                        "color": "#2faee0",
+                    }
+                ],
+                "fontSize": "20"
+            })
+        }
+        
+        $.each(bigButtonsConfig,function(tab_i,tab_v){
+            var tab = createTab(tab_v.title,tab_i,tab_v);
+            $.each(bigButtonsConfig[tab_i].buttons,function(i,v){                   
+                $newButtonRow=createButtonRow(i,v,tab_i);
+                $newButtonRow.find('.buttonTitle').val(v.description);
+                $newButtonRow.find('.buttonColor').val(v.color);
+                PopulateExistingCommand(v, 'button_'+tab_i+'-'+i+'_Command',  'tableButton'+tab_i+'-'+i, true);
+                setButtonCommandSummaryTitle($newButtonRow,$('#button_'+tab_i+'-'+i+'_Command').val());
+    
+            })
+            $('#buttonFontSize').val(bigButtonsConfig[tab_i].fontSize).on('input change',function(){
+                $('.bb_fontSizeDisplay').html($(this).val());
+                bigButtonsConfig[tab_i]['fontSize']=$(this).val();
+                $('.buttonTitle, .bb_icon').css({
+                    fontSize:parseInt($('#buttonFontSize').val())
+                });
+            });
+            $('.bb_fontSizeDisplay').html(bigButtonsConfig[tab_i].fontSize);           
+        });
+        $( ".buttonList" ).disableSelection();
+        $('.buttonTabs').children().eq(0).addClass('bb-active');
+        $('.buttonLists').children().eq(0).addClass('bb-active');
+    
+        setTabColor($('.buttonList.bb-active'),$('.buttonList.bb-active').data('color'));
+        $('.bb_setButtonTabColor').colpick({
+            colorScheme:'flat',
+            layout:'rgbhex',
+            color:$('.buttonList.bb-active').data('color'),
+            onSubmit:function(hsb,newHex,rgb,el) {
+              setTabColor($('.buttonList.bb-active'),newHex);
+              $(el).colpickHide()
+            }
+        });
+    
+    }
+    
+    function setActiveTab($buttonTab){
+        var $buttonList = $('.buttonList[data-tab-id='+$buttonTab.data('tab-id')+']')
+        $buttonTab.addClass('bb-active').siblings().removeClass('bb-active');
+        $buttonList.addClass('bb-active').siblings().removeClass('bb-active');
+        setTabColor($('.buttonList.bb-active'),$buttonList.data('color'));
+    }
 
     function createTab(title,tab_i,tab_v){
         var $buttonTab = $($('.buttonTabTemplate').html());

@@ -43,7 +43,7 @@ require 'bb-common.php';
               <i class="bb_icon"><span class="bb_iconPlaceholder">Add an icon</span></i>
             </div>
             <div class="bb_buttonTitleWrap">
-                <input type='text' class="buttonTitle" placeholder="Name Your Button" id='button_TPL_Title' maxlength='80'  value='<?=$description;?>'></input>
+                <input type='text' class="buttonTitle" placeholder="Name Your Button" id='button_TPL_Title' maxlength='80'  value=''></input>
             </div>
             <div class="bb_commandSummary">
                 <i class="fas fa-fw fa-terminal fa-nbsp"></i><strong class="bb_commandSummaryTitle"></strong><button class="buttons btn-outline-light bb_commandEditButton"><i class="fas fa-cog"></i></button>
@@ -51,10 +51,10 @@ require 'bb-common.php';
         </div>
 
         <div class="buttonCommandWrap">
-            <select id='button_TPL_Command' class="buttonCommand"><option value="" disabled selected>Select a Command</option></select>
             <div class="bb_commandTableWrap">
                 <div class="bb_commandTableCrop">
                 <table border=0 id='tableButtonTPL' class="tableButton">
+                <tr><td>Command:</td><td><select id='button_TPL_Command' class="buttonCommand"><option value="" disabled selected>Select a Command</option></select></td>
 
                 </table>            
                 </div>

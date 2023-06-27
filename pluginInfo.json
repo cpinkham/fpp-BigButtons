@@ -20,7 +20,13 @@
 			"sha": "49b43cb72a0b1eb2a4795013277b669bcfab78de"
 		},
 		{
-			"minFPPVersion": "5.0",
+			"minFPPVersion": "6.0",
+			"maxFPPVersion": "6.99",
+			"branch": "master",
+			"sha": "479f50ae9046562065f9855171e1d4b279bb7188"
+		},
+		{
+			"minFPPVersion": "7.0",
 			"maxFPPVersion": "0",
 			"branch": "master",
 			"sha": ""
