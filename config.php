@@ -1,140 +1,121 @@
+<?
+require 'bb-common.php';
+?>
+
 <div id="global" class="settings">
-<fieldset>
-<legend>Big Buttons Config</legend>
+<link  rel="stylesheet" href="/jquery/colpick/css/colpick.css"/>
+<link  rel="stylesheet" href="/plugin.php?plugin=fpp-BigButtons&page=config.css&nopage=1"/>
+<script src="/jquery/colpick/js/colpick.js"></script>
+<script src="/plugin.php?plugin=fpp-BigButtons&page=fa-icons.js&nopage=1"></script>
+<script src="/plugin.php?plugin=fpp-BigButtons&page=config.js&nopage=1"></script>
 
-<script>
-function colorChanged(id)
-{
-	var selectID = "button" + id + "color";
+<template class="buttonTabTemplate">
+    <li class="buttonTab">
+        <div class="buttonTabInner">
+          
+          <span class="buttonPageTitleValue"></span>
+          <span  class="toggleButtonPageTitleWrap">
+              <button class="bb_circleButton toggleButtonPageTitle"><i class="fpp-icon-edit"></i><i class="fpp-icon-check"></i></button>
+          </span>
+        </div>
+        <div class="hidden buttonTabSettings">
+            <div class="form-group">
+              <label>Title:</label>
+              <input type="text" class="form-control buttonPageTitleInput" placeholder="Name for this tab of buttons">
+            </div>
+            <div class="form-group">
+              <label>Description:</label>
+              <textarea class="form-control buttonPageDescription" placeholder="Optional"></textarea>
+            </div>
+          </div>
+    </li>
+</template>
+<template class="configRowTemplate">
+    <li class="ui-state-default bb_configRow">
+        <div class="bb_configRowHandle">
+            <div class="rowGrip">
+                  <i class="rowGripIcon fpp-icon-grip"></i>
+            </div>
+        </div>
+        
+        <div class="bb_configRowBody">
+            <div class="bb_iconWrap">
+              <i class="bb_icon"><span class="bb_iconPlaceholder">Add an icon</span></i>
+            </div>
+            <div class="bb_buttonTitleWrap">
+                <input type='text' class="buttonTitle" placeholder="Name Your Button" id='button_TPL_Title' maxlength='80'  value=''></input>
+            </div>
+            <div class="bb_commandSummary">
+                <i class="fas fa-fw fa-terminal fa-nbsp"></i><strong class="bb_commandSummaryTitle"></strong><button class="buttons btn-outline-light bb_commandEditButton"><i class="fas fa-cog"></i></button>
+            </div>
+        </div>
 
-	var color = $('#' + selectID).val();
+        <div class="buttonCommandWrap">
+            <div class="bb_commandTableWrap">
+                <div class="bb_commandTableCrop">
+                <table border=0 id='tableButtonTPL' class="tableButton">
+                <tr><td>Command:</td><td><select id='button_TPL_Command' class="buttonCommand"><option value="" disabled selected>Select a Command</option></select></td>
 
-	$('#row' + id).css("background-color", color);
-}
+                </table>            
+                </div>
+            </div>
+        </div>
 
-function SaveBigButtonConfig()
-{
-	var data = $('#bigButtonsForm').serialize();
 
-	$.get('');
-}
-</script>
-<?
+        <div class="bb_buttonActions">
+            <button id='button_TPL_color' class="bb_circleButton buttonColor" type="button"><i class="fas fa-paint-brush"></i></button>
+            <button class="bb_circleButton buttonDelete">Delete</button>
+        </div>
+        
+    </li>
+</template>
 
-$scripts = array();
-if (file_exists($settings['scriptDirectory']))
-{
-	if ($handle = opendir($settings['scriptDirectory']))
-	{
-		while (($file = readdir($handle)) !== false)
-		{
-			if (!in_array($file, array('.', '..')))
-			{
-				$scripts[$file] = $file;
-			}
-		}
-		$scripts['-- Choose a Script --'] = '';
-		ksort($scripts);
-	}
-}
+<div class="row tablePageHeader">
+    <div class="col-md">
+      <div class="buttonTabWrapper">
+        <ul class="buttonTabs">
+        
+        </ul>
+        <div>
+            <button id="bb_addNewTab"><i class="fas fa-plus"></i></button>
+        </div>
+        
+      </div>
+    </div>
+    <div class="col-md-auto ml-lg-auto">
+      <div class="bb_actionButtons ">
+          <input type="button" value="Save Buttons" class="buttons btn-success" id="saveBigButtonConfigButton">
 
-$colorList = array();
-array_push($colorList, "aqua");
-array_push($colorList, "blue");
-array_push($colorList, "chocolate");
-array_push($colorList, "coral");
-array_push($colorList, "darkcyan");
-array_push($colorList, "green");
-array_push($colorList, "grey");
-array_push($colorList, "ivory");
-array_push($colorList, "olive");
-array_push($colorList, "orange");
-array_push($colorList, "pink");
-array_push($colorList, "plum");
-array_push($colorList, "purple");
-array_push($colorList, "red");
-array_push($colorList, "slategrey");
-array_push($colorList, "tan");
-array_push($colorList, "white");
-array_push($colorList, "yellow");
+      </div>   
+    </div>
 
-$colors = array();
-$colors['-- Choose a Color --'] = '';
-foreach ($colorList as $color)
-{
-	$colors[$color] = $color;
-}
 
-$fontSizes = array();
-for ($i = 10; $i <= 64; $i += 2)
-{
-	$fontSizes["$i"] = "$i";
-}
+</div>
+<hr>
+<div class="buttonListsPanelTop row">
+  <div class="col-md">
+    <div class="bb_fontSizeControls">
+        <span><i class="fas fa-text-width"></i></span>
+        
+        <div class="bb_fontSizeControlsInputCol"><input  type="range" min=10 max=64 id='buttonFontSize'></div>
+    </div>
+  </div>
+  <div class="col-md-auto ml-lg-auto bb_tabActions">
+    <button class="bb_setButtonTabColor " type="button"><i class="fas fa-circle bb_setButtonTabColorSwatch"></i>Background</button>
+    <button id="bb_addNewButton" class="buttons btn-outline-success btn-rounded">
+    <i class="fas fa-plus"></i> Add a Button
+    </button>
+  </div>
+</div>
 
-function colorSelect($id)
-{
-	global $colors;
+<div class="buttonListsPanel">
+  <div class="buttonLists">
+  
+  </div>
+</div>
+<div class="bb_iconSelector hidden">
+  <input type="text" class="form-control bb_iconSelectorSearch" placeholder="Find an Icon" />
+  <div class="bb_iconSelectorIcons">
 
-	echo "<select id='button" . $id . "color' onChange='colorChanged(\"" . $id . "\");'>\n";
-	echo "<option value=''>-- Choose a Color --</option>\n";
-	foreach ($colors as $color)
-	{
-		echo "<option>$color</option>\n";
-	}
-	echo "</select>\n";
-}
-
-?>
-<table border=0>
-<tr><td>Button Page Title:</td><td><? PrintSettingText("buttonTitle", 0, 0, 80, 60, "fpp-BigButtons"); ?></td></tr>
-<tr><td>Text Font Size:</td><td><? PrintSettingSelect("Font Size", "buttonFontSize", 0, 0, '', $fontSizes, "fpp-BigButtons"); ?></td></tr>
-</table>
-<script>
-		$('#buttonTitle').on('change keydown paste input', function()
-			{
-				var key = 'buttonTitle';
-				var title = $('#' + key).val();
-				if (pluginSettings[key] != title)
-				{
-					$.get('fppjson.php?command=setPluginSetting&plugin=fpp-BigButtons&key=' + key + '&value=' + title);
-					pluginSettings[key] = title;
-				}
-			});
-</script>
-
-<form id='bigButtonsForm'>
-<table border=1>
-<?
-
-for ($x = 1; $x <= 20; $x++)
-{
-	$id = sprintf( '%02d', $x);
-?>
-<tr><td id='row<?=$id; ?>'>Button #<?=$id; ?></td>
-	<td><table border=0>
-	<tr><td>Description:</td>
-<!--		<td><input type='text' maxlength=60 size=60 id='button<?=$id; ?>' value='the desc'></td></tr> -->
-		<td><? PrintSettingText("button" . $id . "desc", 0, 0, 80, 60, "fpp-BigButtons"); ?></td></tr>
-	<tr><td>Script:</td>
-		<td><? PrintSettingSelect("Script", "button" . $id . "script", 0, 0, '', $scripts, "fpp-BigButtons"); ?></td></tr>
-	<tr><td>Color:</td>
-		<td><? PrintSettingSelect("Color", "button" . $id . "color", 0, 0, '', $colors, "fpp-BigButtons"); ?></td></tr>
-	</table>
-	</td></tr>
-	<script>
-		$('#button<?=$id;?>desc').on('change keydown paste input', function()
-			{
-				var key = 'button<?=$id;?>desc';
-				var desc = $('#' + key).val();
-				if (pluginSettings[key] != desc)
-				{
-					$.get('fppjson.php?command=setPluginSetting&plugin=fpp-BigButtons&key=' + key + '&value=' + desc);
-					pluginSettings[key] = desc;
-				}
-			});
-	</script>
-<?
-}
-?>
-</table>
-</form>
+  </div>
+</div>

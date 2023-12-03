@@ -1,0 +1,36 @@
+{
+	"repoName": "fpp-BigButtons",
+	"name": "Big Buttons",
+	"author": "Chris Pinkham (CaptainMurdoch)",
+	"description": "This plugin displays multiple big buttons in a grid on a page.  Each button can be individually configured to run a different user script.  The title and color of each button can also be configured.",
+	"homeURL": "https://github.com/FalconChristmas/fpp-BigButtons",
+	"srcURL": "https://github.com/FalconChristmas/fpp-BigButtons.git",
+	"bugURL": "https://github.com/FalconChristmas/fpp-BigButtons/issues",
+	"versions": [
+		{
+			"minFPPVersion": "0",
+			"maxFPPVersion": "3.4.99",
+			"branch": "master",
+			"sha": "9ce9583300e373c7f04bd291e7de8316cf269833"
+		},
+		{
+			"minFPPVersion": "3.5.0",
+			"maxFPPVersion": "4.99",
+			"branch": "master",
+			"sha": "49b43cb72a0b1eb2a4795013277b669bcfab78de"
+		},
+		{
+			"minFPPVersion": "6.0",
+			"maxFPPVersion": "6.99",
+			"branch": "master",
+			"sha": "479f50ae9046562065f9855171e1d4b279bb7188"
+		},
+		{
+			"minFPPVersion": "7.0",
+			"maxFPPVersion": "0",
+			"branch": "master",
+			"sha": ""
+		}
+	]
+}
+
