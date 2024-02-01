@@ -112,8 +112,12 @@ $(function(){
         var link = $('<a>', {
         href: 'plugin.php?_menu=content&plugin=fpp-BigButtons&page=config.php',
         text: 'Big Buttons is unconfigured, click me to go to the configuration page'
-    });
-
+        });
+	    
+        // Append the link to the body
+        $('body').append(link);
+    }
+	
     function processBigButtonConfig(data) {
         if (typeof data==="string"){
             pluginJson = $.parseJSON(data);
