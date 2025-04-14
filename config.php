@@ -1,8 +1,8 @@
 <div id="global" class="settings">
 <fieldset>
-<legend>Big Buttons Config</legend>
+<legend>Big Buttons 2024 Config</legend>
 
-<script>
+<script type="text/javascript">
 function colorChanged(id)
 {
 	var selectID = "button" + id + "color";
@@ -89,7 +89,7 @@ function colorSelect($id)
 <tr><td>Button Page Title:</td><td><? PrintSettingText("buttonTitle", 0, 0, 80, 60, "fpp-BigButtons"); ?></td></tr>
 <tr><td>Text Font Size:</td><td><? PrintSettingSelect("Font Size", "buttonFontSize", 0, 0, '', $fontSizes, "fpp-BigButtons"); ?></td></tr>
 </table>
-<script>
+<script type="text/javascript">
 		$('#buttonTitle').on('change keydown paste input', function()
 			{
 				var key = 'buttonTitle';
@@ -121,7 +121,7 @@ for ($x = 1; $x <= 20; $x++)
 		<td><? PrintSettingSelect("Color", "button" . $id . "color", 0, 0, '', $colors, "fpp-BigButtons"); ?></td></tr>
 	</table>
 	</td></tr>
-	<script>
+	<script type="text/javascript">
 		$('#button<?=$id;?>desc').on('change keydown paste input', function()
 			{
 				var key = 'button<?=$id;?>desc';
