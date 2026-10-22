@@ -1,0 +1,77 @@
+{
+	"repoName": "fpp-BigButtons",
+	"name": "Big Buttons",
+	"author": "Chris Pinkham (CaptainMurdoch)",
+	"description": "This plugin displays multiple big buttons in a grid on a page.  Each button can be individually configured to run a different user script.  The title and color of each button can also be configured.",
+	"homeURL": "https://github.com/FalconChristmas/fpp-BigButtons",
+	"srcURL": "https://github.com/FalconChristmas/fpp-BigButtons.git",
+	"bugURL": "https://github.com/FalconChristmas/fpp-BigButtons/issues",
+	"iconURL": "https://raw.githubusercontent.com/FalconChristmas/fpp-BigButtons/master/icon.png",
+	"versions": [
+		{
+			"minFPPVersion": "0",
+			"maxFPPVersion": "3.4.99",
+			"branch": "master",
+			"sha": "9ce9583300e373c7f04bd291e7de8316cf269833"
+		},
+		{
+			"minFPPVersion": "3.5.0",
+			"maxFPPVersion": "4.99",
+			"branch": "master",
+			"sha": "49b43cb72a0b1eb2a4795013277b669bcfab78de"
+		},
+		{
+			"minFPPVersion": "6.0",
+			"maxFPPVersion": "6.99",
+			"branch": "master",
+			"sha": "479f50ae9046562065f9855171e1d4b279bb7188"
+		},
+		{
+			"minFPPVersion": "7.0",
+			"maxFPPVersion": "7.99",
+			"sha": "27f3c82438fdc2f19a54d2f7c9cadfa590031622",
+			"branch": "master"
+		},
+		{
+			"minFPPVersion": "8.0",
+			"maxFPPVersion": "8.99",
+			"sha": "27f3c82438fdc2f19a54d2f7c9cadfa590031622",
+			"branch": "master"
+		},
+		{
+			"minFPPVersion": "9.0",
+			"maxFPPVersion": "9.1",
+			"sha": "27f3c82438fdc2f19a54d2f7c9cadfa590031622",
+			"branch": "master"
+		},
+		{
+			"minFPPVersion": "9.2",
+			"maxFPPVersion": "9.99",
+			"branch": "master",
+			"sha": ""
+		},
+		{
+			"minFPPVersion": "10.0",
+			"maxFPPVersion": "0",
+			"branch": "master",
+			"sha": ""
+		}
+	],
+	"privacy": {
+	 "summary": "Adds a page of big buttons to the player's web interface. Each button runs an action from the player's own list or opens a web address, and can also send that action to other FPP players you pick.",
+	 "sends": [
+	  {
+	   "to": "the other FPP players you pick",
+	   "what": "the button's command and its settings",
+	   "why": "to run the same action on those players",
+	   "alwaysOn": false
+	  }
+	 ],
+	 "collects": [],
+	 "sensors": [],
+	 "remoteAccess": "none",
+	 "systemChanges": [],
+	 "closedCode": false,
+	 "other": "Your button layout is kept in a settings file on the player and is not removed if you uninstall the plugin. A button can do anything the player's own action list allows, including running a script you wrote. Nothing is recorded about who pressed a button."
+	}
+}
